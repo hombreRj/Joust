@@ -1,15 +1,11 @@
-package api.challonge;
+package gg.scenarios.joust.challonge;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.annotations.JsonAdapter;
+
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -59,7 +55,7 @@ public class Challonge {
      * initial method for posting the match
      * @return
      */
-    public String post() {
+    public boolean post() {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments.json")
                 .header("accept", "application/json")
                 .field("api_key", api)
@@ -69,7 +65,7 @@ public class Challonge {
                 .field("tournament[description]", description)
                 .asJson();
         this.response = response;
-        return response.getBody().toPrettyString();
+        return response.getStatus() == 200;
     }
 
     /**

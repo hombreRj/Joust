@@ -1,14 +1,15 @@
 package gg.scenarios.joust.managers;
 
-import api.challonge.Challonge;
-import api.challonge.GameType;
 import gg.scenarios.joust.Joust;
+import gg.scenarios.joust.challonge.Challonge;
+import gg.scenarios.joust.challonge.GameType;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 @Getter
@@ -22,9 +23,9 @@ public class Tournament {
     private String name, url, tournamentNum, description, apiKey, bracketURL;
     private List<TournamentPlayer> host;
     private List<TournamentPlayer> players;
-    private GameType type;
+    private GameType type = GameType.SINGLE;
 
-    Challonge challonge = new Challonge(apiKey, "IAMRJ", String.valueOf(System.currentTimeMillis()), name, description, type);
+    Challonge challonge = new Challonge("AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT", "ScenariosUHC", "" + System.currentTimeMillis(), "test 1v1 tournament", "fun bracket", GameType.SINGLE);
 
 
     public Tournament(String name, String tournamentNum, String description) {
@@ -38,10 +39,10 @@ public class Tournament {
     }
 
     public void setup() {
-        this.url = name + "'s #" + tournamentNum;
         CompletableFuture.runAsync(() -> {
             challonge.post();
         });
+
         bracketURL = challonge.getUrl();
     }
 
@@ -54,33 +55,36 @@ public class Tournament {
 
     public void start() {
         CompletableFuture.runAsync(() -> {
-            challonge.addParticpants();
+
             challonge.start();
         });
-        Bukkit.getScheduler().runTaskLater(joust, () -> {
-            startMatches();
+        System.out.println("tournament started");
+        Bukkit.getScheduler().runTaskLater(joust, ()->{
+            try{
+                startMatches();
+            }catch (ExecutionException | InterruptedException e){
+
+            }
         }, 20 * 10);
     }
 
-    private void startMatches() {
+    public static String[] participants;
+    private String[] names;
+
+    private void startMatches() throws ExecutionException, InterruptedException {
+        System.out.println("starting matches");
         for (Arenas arenas : Arenas.arenasList) {
             if (arenas.isAvailable()) {
-                CompletableFuture.runAsync(() -> {
-                    String[] players = challonge.getMatchParticipants(globalMatchNumber);
-                    try {
-                        TournamentMatch match = new TournamentMatch((globalMatchNumber), players[0], players[1]);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    globalMatchNumber++;
-                });
+                CompletableFuture<String[]> mm = CompletableFuture.supplyAsync(() -> participants = challonge.getMatchParticipants(globalMatchNumber));
+                String[] member= mm.get();
+                System.out.println(member[0]);
             }
         }
     }
 
     public void randomize() {
         CompletableFuture.runAsync(() -> {
-            challonge.randomize();
+            challonge.addParticpants();
             challonge.indexMatches();
 
         });

@@ -1,4 +1,4 @@
-package api.challonge;
+package gg.scenarios.joust.challonge;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

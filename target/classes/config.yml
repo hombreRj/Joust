@@ -1,17 +1,31 @@
 ARENAS:
+  Nether1:
+    NAME: 'Nether1'
+    LOCATIONS:
+      SPAWN1: '-81;55;-41'
+      SPAWN2: '-128;55;5'
+  Nether2:
+    NAME: 'Nether2'
+    LOCATIONS:
+      SPAWN1: '-143;55;-41'
+      SPAWN2: '-190;55;5'
+  Forest1:
+    NAME: 'Forest1'
+    LOCATIONS:
+      SPAWN1: '-143;55;-102'
+      SPAWN2: '-190;55;-55'
   Desert1:
     NAME: 'Desert1'
     LOCATIONS:
-      SPAWN1: '23;34;23'
-      SPAWN2: '23;34;23'
+      SPAWN1: '-128;55;-163'
+      SPAWN2: '-81;55;-116'
   Desert2:
     NAME: 'Desert2'
     LOCATIONS:
-      SPAWN1: '23;34;23'
-      SPAWN2: '23;34;23'
-  Desert3:
-    NAME: 'Desert3'
+      SPAWN1: '-143;55;-163'
+      SPAWN2: '-190;55;-116'
+  Forest2:
+    NAME: 'Forest2'
     LOCATIONS:
-      SPAWN1: '23;34;23'
-      SPAWN2: '23;34;23'
-
+      SPAWN1: '-81;55;-102'
+      SPAWN2: '-128;55;-55'

@@ -5,9 +5,17 @@
       <element id="module-output" name="Joust" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.8/lombok-1.18.8.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/twitter4j/twitter4j-core/4.0.7/twitter4j-core-4.0.7.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mongodb/mongodb-driver-core/3.12.2/mongodb-driver-core-3.12.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mongodb/mongodb-driver/3.12.2/mongodb-driver-3.12.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mongodb/bson/3.12.2/bson-3.12.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mongodb/mongodb-driver-core/3.12.2/mongodb-driver-core-3.12.2.jar" path-in-jar="/" />
+      <element id="library" level="project" name="Maven: com.konghq:unirest-java:3.7.00" />
+      <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.11" />
+      <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpasyncclient:4.1.4" />
+      <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpclient:4.5.12" />
+      <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpcore:4.4.13" />
+      <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpmime:4.5.11" />
+      <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpcore-nio:4.4.13" />
+      <element id="library" level="project" name="Maven: commons-logging:commons-logging:1.2" />
     </root>
   </artifact>
 </component>

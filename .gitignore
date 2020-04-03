@@ -1,2 +1,21 @@
 
 *.class
+.idea/artifacts/Joust_jar.xml
+joust.properties
+joust.xml
+libs/ChallongeAPI-1.0-SNAPSHOT.jar
+module_joust.xml
+pom.xml
+target/original-Joust-1.0-SNAPSHOT.jar
+target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+target/maven-archiver/pom.properties
+target/classes/plugin.yml
+target/classes/config.yml
+pom.xml
+module_joust.xml
+libs/ChallongeAPI-1.0-SNAPSHOT.jar
+joust.xml
+joust.properties
+.idea/artifacts/Joust_jar.xml

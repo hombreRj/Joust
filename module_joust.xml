@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_joust" default="compile.module.joust">
+  <dirname property="module.joust.basedir" file="${ant.file.module_joust}"/>
+  
+  <property name="module.jdk.home.joust" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.joust" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.joust" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.joust" value="-encoding UTF-8 -source 8 -target 1.8 ${compiler.args}"/>
+  
+  <property name="joust.output.dir" value="${module.joust.basedir}/target/classes"/>
+  <property name="joust.testoutput.dir" value="${module.joust.basedir}/target/test-classes"/>
+  
+  <path id="joust.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="joust.module.production.classpath">
+    <path refid="${module.jdk.classpath.joust}"/>
+    <pathelement location="${basedir}/libs/ChallongeAPI-1.0-SNAPSHOT.jar"/>
+    <path refid="library.maven:_org.twitter4j:twitter4j-core:4.0.7.classpath"/>
+    <pathelement location="${basedir}/libs/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar"/>
+    <path refid="library.maven:_org.mongodb:mongodb-driver:3.12.2.classpath"/>
+    <path refid="library.maven:_org.mongodb:bson:3.12.2.classpath"/>
+    <path refid="library.maven:_org.mongodb:mongodb-driver-core:3.12.2.classpath"/>
+    <path refid="library.maven:_org.projectlombok:lombok:1.18.8.classpath"/>
+  </path>
+  
+  <path id="joust.runtime.production.module.classpath">
+    <pathelement location="${joust.output.dir}"/>
+    <pathelement location="${basedir}/libs/ChallongeAPI-1.0-SNAPSHOT.jar"/>
+    <path refid="library.maven:_org.twitter4j:twitter4j-core:4.0.7.classpath"/>
+    <pathelement location="${basedir}/libs/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar"/>
+    <path refid="library.maven:_org.mongodb:mongodb-driver:3.12.2.classpath"/>
+    <path refid="library.maven:_org.mongodb:bson:3.12.2.classpath"/>
+    <path refid="library.maven:_org.mongodb:mongodb-driver-core:3.12.2.classpath"/>
+    <path refid="library.maven:_org.projectlombok:lombok:1.18.8.classpath"/>
+  </path>
+  
+  <path id="joust.module.classpath">
+    <path refid="${module.jdk.classpath.joust}"/>
+    <pathelement location="${joust.output.dir}"/>
+    <pathelement location="${basedir}/libs/ChallongeAPI-1.0-SNAPSHOT.jar"/>
+    <path refid="library.maven:_org.twitter4j:twitter4j-core:4.0.7.classpath"/>
+    <pathelement location="${basedir}/libs/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar"/>
+    <path refid="library.maven:_org.mongodb:mongodb-driver:3.12.2.classpath"/>
+    <path refid="library.maven:_org.mongodb:bson:3.12.2.classpath"/>
+    <path refid="library.maven:_org.mongodb:mongodb-driver-core:3.12.2.classpath"/>
+    <path refid="library.maven:_org.projectlombok:lombok:1.18.8.classpath"/>
+  </path>
+  
+  <path id="joust.runtime.module.classpath">
+    <pathelement location="${joust.testoutput.dir}"/>
+    <pathelement location="${joust.output.dir}"/>
+    <pathelement location="${basedir}/libs/ChallongeAPI-1.0-SNAPSHOT.jar"/>
+    <path refid="library.maven:_org.twitter4j:twitter4j-core:4.0.7.classpath"/>
+    <pathelement location="${basedir}/libs/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar"/>
+    <path refid="library.maven:_org.mongodb:mongodb-driver:3.12.2.classpath"/>
+    <path refid="library.maven:_org.mongodb:bson:3.12.2.classpath"/>
+    <path refid="library.maven:_org.mongodb:mongodb-driver-core:3.12.2.classpath"/>
+    <path refid="library.maven:_org.projectlombok:lombok:1.18.8.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.joust">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.joust">
+    <patternset refid="excluded.from.module.joust"/>
+  </patternset>
+  
+  <path id="joust.module.sourcepath">
+    <dirset dir="${module.joust.basedir}">
+      <include name="src/main/java"/>
+      <include name="src/main/resources"/>
+    </dirset>
+  </path>
+  
+  <path id="joust.module.test.sourcepath">
+    <dirset dir="${module.joust.basedir}">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.joust" depends="compile.module.joust.production,compile.module.joust.tests" description="Compile module Joust"/>
+  
+  <target name="compile.module.joust.production" depends="register.custom.compilers" description="Compile module Joust; production classes">
+    <mkdir dir="${joust.output.dir}"/>
+    <javac2 destdir="${joust.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.joust}/javac">
+      <compilerarg line="${compiler.args.joust}"/>
+      <bootclasspath refid="joust.module.bootclasspath"/>
+      <classpath refid="joust.module.production.classpath"/>
+      <src refid="joust.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.joust"/>
+    </javac2>
+    
+    <copy todir="${joust.output.dir}">
+      <fileset dir="${module.joust.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.joust.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.joust.tests" depends="register.custom.compilers,compile.module.joust.production" description="compile module Joust; test classes" unless="skip.tests">
+    <mkdir dir="${joust.testoutput.dir}"/>
+    <javac2 destdir="${joust.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.joust}/javac">
+      <compilerarg line="${compiler.args.joust}"/>
+      <bootclasspath refid="joust.module.bootclasspath"/>
+      <classpath refid="joust.module.classpath"/>
+      <src refid="joust.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.joust"/>
+    </javac2>
+    
+    <copy todir="${joust.testoutput.dir}">
+      <fileset dir="${module.joust.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.joust" description="cleanup module">
+    <delete dir="${joust.output.dir}"/>
+    <delete dir="${joust.testoutput.dir}"/>
+  </target>
+</project>

@@ -21,7 +21,7 @@ public class Joust extends JavaPlugin {
     private static Joust instance;
     private ArenaManager arenaManager;
     @Getter private Tournament tournament;
-    private final String API_KEY = "iBxWp4qs86txMquXmRGd3nVJ3zlIYUJGrNYfoxnv";
+    private final String API_KEY = "AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT";
 
     private final String PREFIX = "&8[&3Tournament&8] &r";
 

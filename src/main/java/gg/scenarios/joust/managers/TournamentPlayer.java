@@ -35,6 +35,10 @@ public class TournamentPlayer {
         return tournamentPlayerHashMap.get(player.getName());
     }
 
+    public static TournamentPlayer getTournamentPlayer(String player){
+        return tournamentPlayerHashMap.get(player);
+    }
+
     public Player getPlayer(){
         return Bukkit.getPlayer(name);
     }
