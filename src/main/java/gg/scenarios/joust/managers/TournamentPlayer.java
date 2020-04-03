@@ -2,6 +2,7 @@ package gg.scenarios.joust.managers;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -16,6 +17,8 @@ public class TournamentPlayer {
     private String name;
     private UUID uuid;
     private PlayerState state;
+    private int matchId;
+    private TournamentMatch match;
 
     public TournamentPlayer(String name, UUID uuid, PlayerState state) {
         this.name = name;
@@ -30,5 +33,9 @@ public class TournamentPlayer {
 
     public static TournamentPlayer getTournamentPlayer(Player player){
         return tournamentPlayerHashMap.get(player.getName());
+    }
+
+    public Player getPlayer(){
+        return Bukkit.getPlayer(name);
     }
 }

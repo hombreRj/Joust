@@ -2,6 +2,7 @@ package gg.scenarios.joust.managers;
 
 import gg.scenarios.joust.Joust;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 

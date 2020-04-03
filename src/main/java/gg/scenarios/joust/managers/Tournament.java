@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class Tournament {
 
     private Joust joust = Joust.getInstance();
 
-    public static int globalMatchNumber =1;
+    public static int globalMatchNumber = 1;
 
     private String name, url, tournamentNum, description, apiKey, bracketURL;
     private List<TournamentPlayer> host;
@@ -28,7 +29,7 @@ public class Tournament {
 
     public Tournament(String name, String tournamentNum, String description) {
         this.name = name;
-        this.url = name+"'s #" + tournamentNum;
+        this.url = name + "'s #" + tournamentNum;
         this.tournamentNum = tournamentNum;
         this.description = description;
     }
@@ -36,15 +37,15 @@ public class Tournament {
     public Tournament() {
     }
 
-    public void setup(){
-        this.url = name+"'s #" + tournamentNum;
+    public void setup() {
+        this.url = name + "'s #" + tournamentNum;
         CompletableFuture.runAsync(() -> {
             challonge.post();
         });
         bracketURL = challonge.getUrl();
     }
 
-    public void addMembers(){
+    public void addMembers() {
         CompletableFuture.runAsync(() -> {
             TournamentPlayer.tournamentPlayerHashMap.values().stream().filter(TournamentPlayer::isPlaying).forEach(tournamentPlayer -> challonge.getParticipants().add(tournamentPlayer.getName()));
         });
@@ -56,16 +57,16 @@ public class Tournament {
             challonge.addParticpants();
             challonge.start();
         });
-        Bukkit.getScheduler().runTaskLater(joust, ()->{
+        Bukkit.getScheduler().runTaskLater(joust, () -> {
             startMatches();
-        }, 20*10);
+        }, 20 * 10);
     }
 
     private void startMatches() {
-        for (Arenas arenas : Arenas.arenasList){
-            if (arenas.isAvailable()){
-                CompletableFuture.runAsync(()->{
-                    String[] players =challonge.getMatchParticipants(globalMatchNumber);
+        for (Arenas arenas : Arenas.arenasList) {
+            if (arenas.isAvailable()) {
+                CompletableFuture.runAsync(() -> {
+                    String[] players = challonge.getMatchParticipants(globalMatchNumber);
                     try {
                         TournamentMatch match = new TournamentMatch((globalMatchNumber), players[0], players[1]);
                     } catch (Exception e) {
@@ -83,5 +84,34 @@ public class Tournament {
             challonge.indexMatches();
 
         });
+    }
+
+    public void update(int matchId, String name) {
+        CompletableFuture.runAsync(() -> {
+            challonge.updateMatch(matchId, name);
+        });
+    }
+
+    public void end() {
+        CompletableFuture.runAsync(() -> {
+            challonge.end();
+
+        });
+    }
+
+    public void startNextMatch() throws Exception {
+        try {
+            joust.getArenaManager().getNextAvailableArena();
+            CompletableFuture.runAsync(() -> {
+                String[] players = challonge.getMatchParticipants(globalMatchNumber);
+                try {
+                    TournamentMatch match = new TournamentMatch((globalMatchNumber), players[0], players[1]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            Bukkit.getLogger().log(Level.INFO, "Could not find arena.");
+        }
     }
 }
