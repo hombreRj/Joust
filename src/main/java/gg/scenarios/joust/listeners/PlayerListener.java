@@ -57,7 +57,7 @@ public class PlayerListener implements Listener {
 
 
         Utils.broadcast(joust.getPREFIX() + ChatColor.GREEN + winner.getName() + ChatColor.RED + "Has beaten " + ChatColor.GREEN + loser.getName());
-        joust.getTournament().update(winner.getMatchId(), winner.getName());
+        joust.getTournament().getChallonge().updateMatch(winner.getMatchId(), winner.getName());
 
 
         winner.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
@@ -65,7 +65,7 @@ public class PlayerListener implements Listener {
 
         Bukkit.getScheduler().runTaskLater(joust, () -> {
             try {
-                joust.getTournament().startNextMatch();
+             //   joust.getTournament().startNextMatch();
             } catch (Exception e) {
                 e.printStackTrace();
             }

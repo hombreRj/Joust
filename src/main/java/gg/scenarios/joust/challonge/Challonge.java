@@ -1,6 +1,6 @@
 package gg.scenarios.joust.challonge;
 
-
+import gg.scenarios.joust.challonge.GameType;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
@@ -21,7 +21,7 @@ public class Challonge {
     private GameType gameType;
     private HttpResponse<JsonNode> response;
 
-    private HashMap<String, String> partId;
+    private HashMap<String, Integer> partId;
     private HashMap<Integer, String> matchIds;
 
     public Challonge(String api, String username, String url, String name, String description, GameType gameType) {
@@ -42,8 +42,8 @@ public class Challonge {
      * @param id id of the user you want to get
      * @return String name of the user based of the ID
      */
-    public String getNameFromId(String id){
-        for (Map.Entry<String, String> entry : partId.entrySet()) {
+    public String getNameFromId(Integer id){
+        for (Map.Entry<String, Integer> entry : partId.entrySet()) {
             if (entry.getValue().equals(id)) {
                 return entry.getKey();
             }
@@ -87,7 +87,7 @@ public class Challonge {
             while (keys.hasNext()) {
                 Object key = keys.next();
                 JSONObject value = object.getJSONObject((String) key);
-                String id = value.getString("id");
+                int id = value.getInt("id");
                 String name = value.getString("name");
                 partId.put(name, id);
             }
@@ -97,16 +97,15 @@ public class Challonge {
 
 
     /**
-    *      Adds matches to HashMap based of their match ID starting at 1
+     *      Adds matches to HashMap based of their match ID starting at 1
      * @return if successful
-    * */
+     * */
     public boolean indexMatches() {
         HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches.json".replace("{tournament}", url))
                 .header("accept", "application/json")
                 .queryString("api_key", api)
                 .asJson();
 
-        System.out.println(response.getBody().toPrettyString());
         int m = 1;
         JSONArray jsonObject = response.getBody().getArray();
         for (int i = 0; i < jsonObject.length(); i++) {
@@ -202,28 +201,65 @@ public class Challonge {
      * @return if successful
      */
     public boolean updateMatch(int matchId, String name) {
-        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
+        HttpResponse<JsonNode> response = Unirest.put("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
                 replace("{tournament}", url)
                 .replace("{match_id}", matchIds.get(matchId)))
                 .header("accept", "application/json")
                 .field("api_key", api)
-                .field("match[winner_id]", partId.get(name))
+                .field("match[scores_csv]", "1-0")
+                .field("match[winner_id]", String.valueOf(partId.get(name)))
                 .asJson();
 
-        return false;
+        return response.getStatus() == 200;
     }
+    public boolean updateMatch(int matchId, int winnerId) {
+        HttpResponse<JsonNode> response = Unirest.put("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
+                replace("{tournament}", url)
+                .replace("{match_id}", matchIds.get(matchId)))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .field("match[scores_csv]", "1-0")
+                .field("match[winner_id]", String.valueOf(winnerId))
+                .asJson();
+
+        return response.getStatus() == 200;
+    }
+
+
+    public boolean markAsUnderway(int matchId){
+        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}/mark_as_underway.json".
+                replace("{tournament}", url)
+                .replace("{match_id}", matchIds.get(matchId)))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .asJson();
+
+        return response.getStatus() == 200;
+    }
+    public boolean unMarkAsUnderway(int matchId){
+        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}/unmark_as_underway.json".
+                replace("{tournament}", url)
+                .replace("{match_id}", matchIds.get(matchId)))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .asJson();
+
+        return response.getStatus() == 200;
+    }
+
+
 
     /**
      *
      * @param matchId
      * @return array of particpants in the match
      */
-    public String[] getMatchParticipants(int matchId) {
+    public Integer[] getMatchParticipants(int matchId) {
         JSONObject match = getMatch(matchId).getJSONObject(0).getJSONObject("match");
 
-        return new String[]{
-                partId.get((String) match.get("player1_id")),
-                partId.get((String) match.get("player2_id"))
+        return new Integer[]{
+                (match.getInt("player1_id")),
+                match.getInt("player2_id")
         };
     }
 
@@ -232,7 +268,7 @@ public class Challonge {
         return (String) match.get("round");
     }
 
-    public ArrayList<JSONObject> getMatches(String participantName) {
+  /* public ArrayList<JSONObject> getMatches(String participantName) {
         ArrayList<JSONObject> matches = new ArrayList<>();
 
         JSONArray array;
@@ -247,5 +283,5 @@ public class Challonge {
 
         return matches;
     }
-
+*/
 }

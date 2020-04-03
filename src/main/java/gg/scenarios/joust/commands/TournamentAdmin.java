@@ -34,16 +34,13 @@ public class TournamentAdmin implements CommandExecutor {
 
                     joust.getTournament().setDescription(args[1]);
                 } else if (args[0].equalsIgnoreCase("setup")) {
-                    joust.getTournament().setup();
+                    joust.getTournament().getChallonge().post();
                     player.sendMessage(ChatColor.RED + "Setting up tournament");
 
                 } else if (args[0].equalsIgnoreCase("addmembers")) {
-                    joust.getTournament().addMembers();
-                    joust.getTournament().randomize();
                     player.sendMessage(ChatColor.RED + "Added members");
 
                 } else if (args[0].equalsIgnoreCase("start")) {
-                    joust.getTournament().start();
                     player.sendMessage(ChatColor.RED + "Starting tournament");
                 }
             } else {

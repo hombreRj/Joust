@@ -3,13 +3,17 @@ package gg.scenarios.joust.managers;
 import gg.scenarios.joust.Joust;
 import gg.scenarios.joust.challonge.Challonge;
 import gg.scenarios.joust.challonge.GameType;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.cactoos.func.Async;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 
 @Getter
@@ -37,7 +41,6 @@ public class Tournament {
 
     public Tournament() {
     }
-
     public void setup() {
         CompletableFuture.runAsync(() -> {
             challonge.post();
@@ -68,15 +71,15 @@ public class Tournament {
         }, 20 * 10);
     }
 
-    public static String[] participants;
-    private String[] names;
+    public static Integer[] participants;
+    private Integer[] names;
 
     private void startMatches() throws ExecutionException, InterruptedException {
         System.out.println("starting matches");
         for (Arenas arenas : Arenas.arenasList) {
             if (arenas.isAvailable()) {
-                CompletableFuture<String[]> mm = CompletableFuture.supplyAsync(() -> participants = challonge.getMatchParticipants(globalMatchNumber));
-                String[] member= mm.get();
+                CompletableFuture<Integer[]> mm = CompletableFuture.supplyAsync(() -> participants = challonge.getMatchParticipants(globalMatchNumber));
+                Integer[] member= mm.get();
                 System.out.println(member[0]);
             }
         }
@@ -107,9 +110,9 @@ public class Tournament {
         try {
             joust.getArenaManager().getNextAvailableArena();
             CompletableFuture.runAsync(() -> {
-                String[] players = challonge.getMatchParticipants(globalMatchNumber);
+                Integer[] players = challonge.getMatchParticipants(globalMatchNumber);
                 try {
-                    TournamentMatch match = new TournamentMatch((globalMatchNumber), players[0], players[1]);
+                    TournamentMatch match = new TournamentMatch((globalMatchNumber), challonge.getNameFromId(players[0]),challonge.getNameFromId(players[1]));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
