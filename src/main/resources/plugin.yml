@@ -1,0 +1,5 @@
+name: Joust
+main: gg.scenarios.joust.Joust
+version: 0.0-1-SNAPSHOT
+website: https://scenarios.gg
+author: IAMRJ

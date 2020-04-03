@@ -1,0 +1,17 @@
+ARENAS:
+  Desert1:
+    NAME: 'Desert1'
+    LOCATIONS:
+      SPAWN1: '23;34;23'
+      SPAWN2: '23;34;23'
+  Desert2:
+    NAME: 'Desert2'
+    LOCATIONS:
+      SPAWN1: '23;34;23'
+      SPAWN2: '23;34;23'
+  Desert3:
+    NAME: 'Desert3'
+    LOCATIONS:
+      SPAWN1: '23;34;23'
+      SPAWN2: '23;34;23'
+
