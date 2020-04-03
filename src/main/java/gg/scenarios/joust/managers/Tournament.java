@@ -41,31 +41,31 @@ public class Tournament {
 
     public Tournament() {
     }
+
     public void setup() {
-        CompletableFuture.runAsync(() -> {
-            challonge.post();
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(joust, challonge::post);
 
         bracketURL = challonge.getUrl();
     }
 
     public void addMembers() {
-        CompletableFuture.runAsync(() -> {
-            TournamentPlayer.tournamentPlayerHashMap.values().stream().filter(TournamentPlayer::isPlaying).forEach(tournamentPlayer -> challonge.getParticipants().add(tournamentPlayer.getName()));
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(joust, () ->
+                TournamentPlayer.tournamentPlayerHashMap.keySet().forEach(s -> {
+                    challonge.getParticipants().add(s);
+                })
+        );
+
     }
 
 
     public void start() {
-        CompletableFuture.runAsync(() -> {
+        Bukkit.getScheduler().runTaskAsynchronously(joust, challonge::start);
 
-            challonge.start();
-        });
         System.out.println("tournament started");
-        Bukkit.getScheduler().runTaskLater(joust, ()->{
-            try{
+        Bukkit.getScheduler().runTaskLater(joust, () -> {
+            try {
                 startMatches();
-            }catch (ExecutionException | InterruptedException e){
+            } catch (ExecutionException | InterruptedException e) {
 
             }
         }, 20 * 10);
@@ -78,29 +78,32 @@ public class Tournament {
         System.out.println("starting matches");
         for (Arenas arenas : Arenas.arenasList) {
             if (arenas.isAvailable()) {
-                CompletableFuture<Integer[]> mm = CompletableFuture.supplyAsync(() -> participants = challonge.getMatchParticipants(globalMatchNumber));
-                Integer[] member= mm.get();
-                System.out.println(member[0]);
+                Bukkit.getScheduler().runTaskAsynchronously(joust, () -> {
+                    names = challonge.getMatchParticipants(globalMatchNumber);
+                });
+
             }
+            globalMatchNumber++;
         }
     }
 
     public void randomize() {
-        CompletableFuture.runAsync(() -> {
+        Bukkit.getScheduler().runTaskAsynchronously(joust, ()-> {
             challonge.addParticpants();
+            challonge.randomize();
             challonge.indexMatches();
-
         });
+
     }
 
     public void update(int matchId, String name) {
-        CompletableFuture.runAsync(() -> {
+        Bukkit.getScheduler().runTaskAsynchronously(joust, ()-> {
             challonge.updateMatch(matchId, name);
         });
     }
 
     public void end() {
-        CompletableFuture.runAsync(() -> {
+        Bukkit.getScheduler().runTaskAsynchronously(joust, ()-> {
             challonge.end();
 
         });
@@ -109,10 +112,10 @@ public class Tournament {
     public void startNextMatch() throws Exception {
         try {
             joust.getArenaManager().getNextAvailableArena();
-            CompletableFuture.runAsync(() -> {
+            Bukkit.getScheduler().runTaskAsynchronously(joust, ()-> {
                 Integer[] players = challonge.getMatchParticipants(globalMatchNumber);
                 try {
-                    TournamentMatch match = new TournamentMatch((globalMatchNumber), challonge.getNameFromId(players[0]),challonge.getNameFromId(players[1]));
+                    TournamentMatch match = new TournamentMatch((globalMatchNumber), challonge.getNameFromId(players[0]), challonge.getNameFromId(players[1]));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
