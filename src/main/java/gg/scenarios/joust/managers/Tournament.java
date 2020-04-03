@@ -2,8 +2,10 @@ package gg.scenarios.joust.managers;
 
 import api.challonge.Challonge;
 import api.challonge.GameType;
+import gg.scenarios.joust.Joust;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -12,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 @Setter
 public class Tournament {
 
+    private Joust joust = Joust.getInstance();
 
     public static int globalMatchNumber =1;
 
@@ -48,7 +51,37 @@ public class Tournament {
     }
 
 
+    public void start() {
+        CompletableFuture.runAsync(() -> {
+            challonge.addParticpants();
+            challonge.start();
+        });
+        Bukkit.getScheduler().runTaskLater(joust, ()->{
+            startMatches();
+        }, 20*10);
+    }
 
+    private void startMatches() {
+        for (Arenas arenas : Arenas.arenasList){
+            if (arenas.isAvailable()){
+                CompletableFuture.runAsync(()->{
+                    String[] players =challonge.getMatchParticipants(globalMatchNumber);
+                    try {
+                        TournamentMatch match = new TournamentMatch((globalMatchNumber), players[0], players[1]);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    globalMatchNumber++;
+                });
+            }
+        }
+    }
 
+    public void randomize() {
+        CompletableFuture.runAsync(() -> {
+            challonge.randomize();
+            challonge.indexMatches();
 
+        });
+    }
 }

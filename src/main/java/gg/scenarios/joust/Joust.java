@@ -1,14 +1,17 @@
 package gg.scenarios.joust;
 
+import gg.scenarios.joust.commands.BracketCommand;
+import gg.scenarios.joust.commands.TournamentAdmin;
+import gg.scenarios.joust.listeners.PlayerListener;
 import gg.scenarios.joust.managers.ArenaManager;
 import gg.scenarios.joust.managers.Arenas;
 import gg.scenarios.joust.managers.Tournament;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 
 
 @Getter
@@ -28,6 +31,11 @@ public class Joust extends JavaPlugin {
         arenaManager = new ArenaManager();
         arenaManager.init();
         tournament = new Tournament();
+        tournament.setApiKey(API_KEY);
+
+        Bukkit.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        getCommand("tournament").setExecutor(new TournamentAdmin());
+        getCommand("bracket").setExecutor(new BracketCommand());
     }
 
 

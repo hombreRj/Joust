@@ -39,6 +39,10 @@ public class TournamentAdmin implements CommandExecutor {
                             joust.getTournament().setup();
                         }else if(args[0].equalsIgnoreCase("addmembers")){
                             joust.getTournament().addMembers();
+                            joust.getTournament().randomize();
+                        }else if(args[0].equalsIgnoreCase("start")){
+                            joust.getTournament().start();
+
                         }
                     }else{
                         player.sendMessage(ChatColor.RED + "/tournament <host:setname:setdesc:setnum>");

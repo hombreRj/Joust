@@ -8,8 +8,10 @@ public class ArenaManager {
 
     private Joust joust = Joust.getInstance();
 
+    public static int count = 0;
+
     public void init() {
-        int count =0;
+
 
         for (String key : joust.getConfig().getConfigurationSection("ARENAS").getKeys(false)) {
             count++;

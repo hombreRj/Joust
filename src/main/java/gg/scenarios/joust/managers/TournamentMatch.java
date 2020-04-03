@@ -13,11 +13,11 @@ public class TournamentMatch {
     private Joust joust = Joust.getInstance();
 
 
-    private String id;
+    private int id;
     private String player1, player;
     private Arenas arena;
 
-    public TournamentMatch(String id, String player1, String player) throws Exception {
+    public TournamentMatch(int id, String player1, String player) throws Exception {
         this.id = id;
         this.player1 = player1;
         this.player = player;
