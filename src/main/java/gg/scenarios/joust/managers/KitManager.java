@@ -1,6 +1,5 @@
 package gg.scenarios.joust.managers;
 
-import org.apache.logging.log4j.core.appender.FileManager;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;

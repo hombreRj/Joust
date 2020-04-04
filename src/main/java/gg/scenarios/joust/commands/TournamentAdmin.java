@@ -2,11 +2,14 @@ package gg.scenarios.joust.commands;
 
 import gg.scenarios.joust.Joust;
 import gg.scenarios.joust.managers.TournamentPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.concurrent.ExecutionException;
 
 public class TournamentAdmin implements CommandExecutor {
 
@@ -34,14 +37,32 @@ public class TournamentAdmin implements CommandExecutor {
 
                     joust.getTournament().setDescription(args[1]);
                 } else if (args[0].equalsIgnoreCase("setup")) {
-                    joust.getTournament().getChallonge().post();
+                    try {
+                        System.out.println(joust.getTournament().getChallonge().post().get());
+
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     player.sendMessage(ChatColor.RED + "Setting up tournament");
 
                 } else if (args[0].equalsIgnoreCase("addmembers")) {
+                    try {
+                        TournamentPlayer.tournamentPlayerHashMap.keySet().forEach(sl -> joust.getTournament().getChallonge().getParticipants().add(sl));
+
+                        System.out.println(joust.getTournament().getChallonge().addParticpants().get());
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     player.sendMessage(ChatColor.RED + "Added members");
 
                 } else if (args[0].equalsIgnoreCase("start")) {
+                    try {
+                        System.out.println(joust.getTournament().start());
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     player.sendMessage(ChatColor.RED + "Starting tournament");
+
                 }
             } else {
                 player.sendMessage(ChatColor.RED + "/tournament <host:setname:setdesc:setnum>");

@@ -1,15 +1,12 @@
 package gg.scenarios.joust.managers;
 
 import gg.scenarios.joust.Joust;
+
 import gg.scenarios.joust.challonge.Challonge;
 import gg.scenarios.joust.challonge.GameType;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.cactoos.func.Async;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -42,34 +39,19 @@ public class Tournament {
     public Tournament() {
     }
 
-    public void setup() {
-        Bukkit.getScheduler().runTaskAsynchronously(joust, challonge::post);
-
-        bracketURL = challonge.getUrl();
+    public boolean setup() throws ExecutionException, InterruptedException {
+        return challonge.post().get();
     }
 
-    public void addMembers() {
-        Bukkit.getScheduler().runTaskAsynchronously(joust, () ->
-                TournamentPlayer.tournamentPlayerHashMap.keySet().forEach(s -> {
-                    challonge.getParticipants().add(s);
-                })
-        );
-
+    public String getBracketURL() {
+        return challonge.getUrl();
     }
 
-
-    public void start() {
-        Bukkit.getScheduler().runTaskAsynchronously(joust, challonge::start);
-
-        System.out.println("tournament started");
-        Bukkit.getScheduler().runTaskLater(joust, () -> {
-            try {
-                startMatches();
-            } catch (ExecutionException | InterruptedException e) {
-
-            }
-        }, 20 * 10);
+    public boolean addMembers() throws ExecutionException, InterruptedException {
+        TournamentPlayer.tournamentPlayerHashMap.keySet().forEach(s -> challonge.getParticipants().add(s));
+        return challonge.addParticpants().get();
     }
+
 
     public static Integer[] participants;
     private Integer[] names;
@@ -78,32 +60,36 @@ public class Tournament {
         System.out.println("starting matches");
         for (Arenas arenas : Arenas.arenasList) {
             if (arenas.isAvailable()) {
-                Bukkit.getScheduler().runTaskAsynchronously(joust, () -> {
-                    names = challonge.getMatchParticipants(globalMatchNumber);
-                });
-
+                   names = challonge.getMatchParticipants(globalMatchNumber).get();
+                for (Integer integer : names) {
+                    System.out.println(integer);
+                }
             }
-            globalMatchNumber++;
+
         }
     }
 
-    public void randomize() {
-        Bukkit.getScheduler().runTaskAsynchronously(joust, ()-> {
-            challonge.addParticpants();
-            challonge.randomize();
-            challonge.indexMatches();
-        });
+    public boolean start() throws ExecutionException, InterruptedException {
+        return challonge.start().get();
+    }
 
+
+    public void randomize() {
+        CompletableFuture.runAsync(() -> {
+            challonge.addParticpants();
+            challonge.indexMatches();
+
+        });
     }
 
     public void update(int matchId, String name) {
-        Bukkit.getScheduler().runTaskAsynchronously(joust, ()-> {
+        CompletableFuture.runAsync(() -> {
             challonge.updateMatch(matchId, name);
         });
     }
 
     public void end() {
-        Bukkit.getScheduler().runTaskAsynchronously(joust, ()-> {
+        CompletableFuture.runAsync(() -> {
             challonge.end();
 
         });
@@ -112,10 +98,10 @@ public class Tournament {
     public void startNextMatch() throws Exception {
         try {
             joust.getArenaManager().getNextAvailableArena();
-            Bukkit.getScheduler().runTaskAsynchronously(joust, ()-> {
-                Integer[] players = challonge.getMatchParticipants(globalMatchNumber);
+            CompletableFuture.runAsync(() -> {
+                CompletableFuture<Integer[]> players = challonge.getMatchParticipants(globalMatchNumber);
                 try {
-                    TournamentMatch match = new TournamentMatch((globalMatchNumber), challonge.getNameFromId(players[0]), challonge.getNameFromId(players[1]));
+                    TournamentMatch match = new TournamentMatch((globalMatchNumber), challonge.getNameFromId(players.get()[0]), challonge.getNameFromId(players.get()[1]));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
