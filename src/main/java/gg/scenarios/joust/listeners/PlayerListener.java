@@ -97,24 +97,22 @@ public class PlayerListener implements Listener {
         event.setDeathMessage(null);
     }
 
+
+
     @EventHandler
     public void onDeath(EntityDeathEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
         Player killed = (Player) event.getEntity();
         killed.setHealth(20);
+
         if (killed.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent dmgEvent = (EntityDamageByEntityEvent) killed.getLastDamageCause();
             if (dmgEvent.getDamager() instanceof Player) {
                 Player killer = (Player) dmgEvent.getDamager();
-
+                killer.setHealth(20);
                 TournamentPlayer loser = TournamentPlayer.getTournamentPlayer(killed);
                 TournamentPlayer winner = TournamentPlayer.getTournamentPlayer(event.getEntity().getKiller());
-                if (joust.getTournament().getType() == GameType.SINGLE) {
-                    loser.setState(PlayerState.ELIMINATED);
-                    loser.getPlayer().sendMessage(ChatColor.RED + "You have lost this round of the tournament");
-                }else{
-                    loser.setState(PlayerState.LOBBY);
-                }
+
                 event.getDrops().clear();
                 winner.getMatch().getArena().clear();
                 winner.getMatch().getArena().setAvailable(true);
@@ -123,6 +121,12 @@ public class PlayerListener implements Listener {
                 winner.setMatch(null);
 
                 winner.setState(PlayerState.LOBBY);
+                loser.setState(PlayerState.LOBBY);
+
+                winner.getPlayer().getActivePotionEffects().forEach(potionEffect -> winner.getPlayer().removePotionEffect(potionEffect.getType()));
+
+                winner.getPlayer().setFireTicks(0);
+                loser.getPlayer().setFireTicks(0);
 
 
                 for (Player player :Bukkit.getOnlinePlayers()){

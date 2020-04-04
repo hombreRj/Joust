@@ -18,7 +18,7 @@ public class TournamentPlayer {
     private UUID uuid;
     private PlayerState state;
     private int matchId;
-    private TournamentMatch match;
+    private TournamentMatch match = null;
 
     public TournamentPlayer(String name, UUID uuid, PlayerState state) {
         this.name = name;
@@ -41,5 +41,10 @@ public class TournamentPlayer {
 
     public Player getPlayer(){
         return Bukkit.getPlayer(name);
+    }
+
+
+    public boolean isInMatch(){
+        return false;
     }
 }

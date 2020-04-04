@@ -8,6 +8,7 @@ import gg.scenarios.joust.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,7 +30,7 @@ public class Tournament {
     private GameType type = GameType.SINGLE;
     private TournamentState tournamentState;
 
-    Challonge challonge = new Challonge("AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT", "ScenariosUHC", "" + System.currentTimeMillis(), "test 1v1 tournament", "fun bracket", GameType.SINGLE);
+    Challonge challonge = new Challonge("AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT", "ScenariosUHC", "" + System.currentTimeMillis(), "test 1v1 tournament", "fun bracket", GameType.DOUBLE);
 
 
     public Tournament(String name, String tournamentNum, String description) {
@@ -65,12 +66,12 @@ public class Tournament {
 
         for (Arenas arenas : Arenas.arenasList) {
             if (arenas.isAvailable()) {
-                Integer[] names = challonge.getMatchParticipants(globalMatchNumber).get();
-                TournamentMatch match = new TournamentMatch(globalMatchNumber, challonge.getNameFromId(names[0]), challonge.getNameFromId(names[1]));
-                globalMatchNumber++;
+                startMatch(globalMatchNumber);
             }
+            globalMatchNumber++;
         }
     }
+
 
     public void start() throws ExecutionException, InterruptedException {
         tournamentState = TournamentState.STARTED;
@@ -102,19 +103,38 @@ public class Tournament {
     }
 
     public void startNextMatch() {
+        System.out.println(105);
         if (tournamentState == TournamentState.STARTED) {
             try {
                 Arenas arenas = joust.getArenaManager().getNextAvailableArena();
                 if (arenas.isAvailable()) {
-                    Integer[] names = challonge.getMatchParticipants(globalMatchNumber).get();
-                    TournamentMatch match = new TournamentMatch(globalMatchNumber, challonge.getNameFromId(names[0]), challonge.getNameFromId(names[1]));
+                    System.out.println(110);
+                    startMatch(globalMatchNumber);
                     globalMatchNumber++;
+                } else {
+                    System.out.println(114);
+                    System.out.println("Could not load arena trying again in 10 seconds");
+                    Bukkit.getScheduler().runTaskLater(joust, () -> {
+                        try {
+                            System.out.println(117);
+                            startMatch(globalMatchNumber);
+                            globalMatchNumber++;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }, 20 * 10);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Could not load arena trying again in 10 seconds");
-                Bukkit.getScheduler().runTaskLater(joust, this::startNextMatch, 20*10);
+            } catch (Exception p) {
+
             }
         }
     }
+
+    public void startMatch(int matchNumer) throws Exception {
+        System.out.println(130);
+        Integer[] names = challonge.getMatchParticipants(matchNumer).get();
+        TournamentPlayer p2 = TournamentPlayer.getTournamentPlayer(Bukkit.getPlayer(challonge.getNameFromId(names[0])));
+        TournamentPlayer p1 = TournamentPlayer.getTournamentPlayer(Bukkit.getPlayer(challonge.getNameFromId(names[1])));
+            TournamentMatch match = new TournamentMatch(matchNumer, challonge.getNameFromId(names[0]), challonge.getNameFromId(names[1]));
+        }
 }

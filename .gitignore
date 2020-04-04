@@ -19,3 +19,4 @@ libs/ChallongeAPI-1.0-SNAPSHOT.jar
 joust.xml
 joust.properties
 .idea/artifacts/Joust_jar.xml
+/target/

@@ -88,7 +88,7 @@ public class TournamentMatch {
 
         player.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
 
-        joust.getTournament().getChallonge().updateMatch(player.getMatchId(), player.getName()).get();
+        joust.getTournament().getChallonge().updateMatch(player.getMatchId(), winner.getName());
         player.getPlayer().sendMessage(ChatColor.RED + "Your opponent is not online so you have won");
         Bukkit.getScheduler().runTaskLater(joust, () -> {
             try {
