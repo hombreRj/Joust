@@ -2,6 +2,7 @@ package gg.scenarios.joust.commands;
 
 import gg.scenarios.joust.Joust;
 import gg.scenarios.joust.managers.TournamentPlayer;
+import gg.scenarios.joust.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -38,7 +39,8 @@ public class TournamentAdmin implements CommandExecutor {
                     joust.getTournament().setDescription(args[1]);
                 } else if (args[0].equalsIgnoreCase("setup")) {
                     try {
-                        System.out.println(joust.getTournament().getChallonge().post().get());
+                        System.out.println(joust.getTournament().setup());
+                        TournamentPlayer.tournamentPlayerHashMap.keySet().forEach(sl -> joust.getTournament().getChallonge().getParticipants().add(sl));
 
                     } catch (ExecutionException | InterruptedException e) {
                         e.printStackTrace();
@@ -46,23 +48,32 @@ public class TournamentAdmin implements CommandExecutor {
                     player.sendMessage(ChatColor.RED + "Setting up tournament");
 
                 } else if (args[0].equalsIgnoreCase("addmembers")) {
-                    try {
-                        TournamentPlayer.tournamentPlayerHashMap.keySet().forEach(sl -> joust.getTournament().getChallonge().getParticipants().add(sl));
 
-                        System.out.println(joust.getTournament().getChallonge().addParticpants().get());
-                    } catch (ExecutionException | InterruptedException e) {
+                    try {
+                        joust.getTournament().randomize();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     player.sendMessage(ChatColor.RED + "Added members");
 
                 } else if (args[0].equalsIgnoreCase("start")) {
                     try {
-                        System.out.println(joust.getTournament().start());
+                        joust.getTournament().start();
                     } catch (ExecutionException | InterruptedException e) {
                         e.printStackTrace();
                     }
                     player.sendMessage(ChatColor.RED + "Starting tournament");
 
+                }else if (args[0].equalsIgnoreCase("end")) {
+                    try {
+                        joust.getTournament().end();
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Utils.broadcast(joust.getPREFIX() + "&c&LThe tournament is now over view the bracket at");
+                    Utils.broadcast("&c&o" + joust.getTournament().getBracketURL());
                 }
             } else {
                 player.sendMessage(ChatColor.RED + "/tournament <host:setname:setdesc:setnum>");

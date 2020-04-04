@@ -12,6 +12,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 
 @Getter
@@ -19,6 +22,7 @@ public class Joust extends JavaPlugin {
 
     @Getter
     private static Joust instance;
+    public static List<UUID> mods = new ArrayList<>();
     private ArenaManager arenaManager;
     @Getter private Tournament tournament;
     private final String API_KEY = "AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT";

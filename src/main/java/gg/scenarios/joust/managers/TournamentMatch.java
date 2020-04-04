@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Getter
 public class TournamentMatch {
@@ -36,14 +37,15 @@ public class TournamentMatch {
     }
 
 
-    private void startMatch(Player player1, Player player2, Arenas arenas){
+    private void startMatch(Player player1, Player player2, Arenas arenas) throws ExecutionException, InterruptedException {
 
-        if (player1 == null){
+        if (player1 == null) {
             forfeit(player2, this.player1);
+            return;
         }
-        if (player2 == null){
+        if (player2 == null) {
             forfeit(player1, this.player2);
-
+            return;
         }
         KitManager.giveKit(player1);
         KitManager.giveKit(player2);
@@ -52,29 +54,45 @@ public class TournamentMatch {
         player2.teleport(arenas.getSpawn2());
         TournamentPlayer.getTournamentPlayer(player1).setMatch(this);
         TournamentPlayer.getTournamentPlayer(player2).setMatchId(id);
+        TournamentPlayer.getTournamentPlayer(player1).setState(PlayerState.INGAME);
+        TournamentPlayer.getTournamentPlayer(player2).setState(PlayerState.INGAME);
         TournamentPlayer.getTournamentPlayer(player2).setMatch(this);
-        Utils.broadcast(joust.getPREFIX() + ChatColor.GREEN +player1.getName() +ChatColor.RED + "Is now fighting " +ChatColor.GREEN+player2.getName() + ChatColor.RED +" at arena " + ChatColor.GREEN +arenas.getName());
+
+        for (Player player :Bukkit.getOnlinePlayers()){
+            if (!(player.getName().equalsIgnoreCase(player1.getName()) || player.getName().equalsIgnoreCase(player2.getName()))){
+                player1.hidePlayer(player);
+                player2.hidePlayer(player);
+            }
+        }
+        Utils.broadcast(joust.getPREFIX() + ChatColor.GREEN + player1.getName() + ChatColor.RED + " is now fighting " + ChatColor.GREEN + player2.getName() + ChatColor.RED + " at arena " + ChatColor.GREEN + arenas.getName());
     }
 
-    private void forfeit(Player winner, String loser){
+    private void forfeit(Player winner, String loser) throws ExecutionException, InterruptedException {
+
+        for (Player player :Bukkit.getOnlinePlayers()){
+            if (!(Joust.mods.contains(player.getUniqueId()))) {
+                winner.showPlayer(player);
+            }
+        }
         TournamentPlayer player = TournamentPlayer.getTournamentPlayer(winner);
         TournamentPlayer losers = TournamentPlayer.getTournamentPlayer(loser);
 
-
-
         this.getArena().setAvailable(true);
+        this.getArena().clear();
         //TODO: set match to null;
         player.setMatch(null);
         losers.setMatch(null);
+        TournamentPlayer.getTournamentPlayer(player1).setState(PlayerState.LOBBY);
+        TournamentPlayer.getTournamentPlayer(player2).setState(PlayerState.LOBBY);
+
 
         player.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
 
-        player.getPlayer().sendMessage(ChatColor.RED +"Your opponent is not online so you have won");
-        joust.getTournament().getChallonge().updateMatch(player.getMatchId(), player.getName());
-
+        joust.getTournament().getChallonge().updateMatch(player.getMatchId(), player.getName()).get();
+        player.getPlayer().sendMessage(ChatColor.RED + "Your opponent is not online so you have won");
         Bukkit.getScheduler().runTaskLater(joust, () -> {
             try {
-            //    joust.getTournament().startNextMatch();
+                joust.getTournament().startNextMatch();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -82,9 +100,14 @@ public class TournamentMatch {
 
         player.setMatchId(0);
         losers.setMatchId(0);
+
+
+        winner.getPlayer().getInventory().clear();
+        winner.getPlayer().getInventory().setBoots(null);
+        winner.getPlayer().getInventory().setHelmet(null);
+        winner.getPlayer().getInventory().setLeggings(null);
+        winner.getPlayer().getInventory().setChestplate(null);
     }
-
-
 
 
 }
