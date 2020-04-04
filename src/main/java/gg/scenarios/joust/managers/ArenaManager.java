@@ -11,8 +11,6 @@ public class ArenaManager {
     public static int count = 0;
 
     public void init() {
-
-
         for (String key : joust.getConfig().getConfigurationSection("ARENAS").getKeys(false)) {
             count++;
             String arenaName = joust.getConfig().getString("ARENAS." + key + ".NAME");

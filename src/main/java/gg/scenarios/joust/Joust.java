@@ -12,6 +12,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +30,8 @@ public class Joust extends JavaPlugin {
     private final String API_KEY = "AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT";
 
     private final String PREFIX = "&8[&3Tournament&8] &r";
+
+
 
     @Override
     public void onEnable() {

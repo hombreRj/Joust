@@ -58,7 +58,7 @@ public class PlayerListener implements Listener {
                 if (goldenHead.getItemMeta().getDisplayName().contains("Golden Head")) {
                     Player p = event.getPlayer();
                     PotionEffect pe = new PotionEffect(PotionEffectType.ABSORPTION, 2400, 0);
-                    PotionEffect re = new PotionEffect(PotionEffectType.REGENERATION, 100, 1);
+                    PotionEffect re = new PotionEffect(PotionEffectType.REGENERATION, 200, 1);
                     pe.apply(p);
                     re.apply(p);
                 }
@@ -89,7 +89,7 @@ public class PlayerListener implements Listener {
         Player killer = (Player) damager.getShooter();
 
         double distance = killer.getLocation().distance(player.getLocation());
-        killer.sendMessage(ChatColor.translateAlternateColorCodes('&', joust.getPREFIX() + player.getName() + " is at " + (player.getHealth())));
+        killer.sendMessage(ChatColor.translateAlternateColorCodes('&', joust.getPREFIX() + "&3"+ player.getName() + " &2is at &4" + Utils.getNf().format(player.getHealth())));
     }
 
     @EventHandler
@@ -185,7 +185,12 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onLogin(PlayerLoginEvent event) {
-        TournamentPlayer tournamentPlayer = new TournamentPlayer(event.getPlayer().getName(), event.getPlayer().getUniqueId(), PlayerState.LOBBY);
+        if (joust.getTournament().getTournamentState() == TournamentState.LOBBY) {
+            TournamentPlayer tournamentPlayer = new TournamentPlayer(event.getPlayer().getName(), event.getPlayer().getUniqueId(), PlayerState.LOBBY);
+        }else{
+            TournamentPlayer tournamentPlayer = new TournamentPlayer(event.getPlayer().getName(), event.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
+
+        }
     }
 
     @EventHandler
