@@ -25,7 +25,7 @@ public class KitManager {
 
         ItemStack helmet = new ItemStack(Material.DIAMOND_HELMET);
         helmet.addUnsafeEnchantment(Enchantment.DURABILITY, 3);
-        helmet.addUnsafeEnchantment(Enchantment.PROTECTION_PROJECTILE, 2);
+        helmet.addUnsafeEnchantment(Enchantment.PROTECTION_PROJECTILE, 3);
 
         ItemStack chest = new ItemStack(Material.DIAMOND_CHESTPLATE);
         chest.addUnsafeEnchantment(Enchantment.DURABILITY, 3);
@@ -37,8 +37,7 @@ public class KitManager {
 
         ItemStack boots = new ItemStack(Material.DIAMOND_BOOTS);
         boots.addUnsafeEnchantment(Enchantment.DURABILITY, 3);
-        boots.addUnsafeEnchantment(Enchantment.PROTECTION_FALL, 4);
-        boots.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 2);
+        boots.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 3);
 
         ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
         sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 3);

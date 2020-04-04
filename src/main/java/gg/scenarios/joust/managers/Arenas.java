@@ -3,7 +3,6 @@ package gg.scenarios.joust.managers;
 import gg.scenarios.joust.Joust;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.server.v1_8_R3.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,7 +31,7 @@ public class Arenas {
     }
 
 
-    public boolean clear(){
+    public void clear(){
         Bukkit.getScheduler().runTaskAsynchronously(joust, ()->{
             int x1 = (int) Math.max(spawn2.getX(), spawn1.getX());
             int y1 = (int) Math.max(spawn2.getY(), spawn1.getY()) +2;
@@ -54,7 +53,6 @@ public class Arenas {
                 }
             }
         });
-        return true;
     }
 
 
