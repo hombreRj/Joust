@@ -44,6 +44,11 @@ public class TournamentPlayer {
     }
 
 
+    public boolean isOnline() {
+        return Bukkit.getPlayer(uuid) != null;
+    }
+
+
     public boolean isInMatch(){
         return false;
     }

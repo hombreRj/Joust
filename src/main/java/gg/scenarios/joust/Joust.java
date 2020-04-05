@@ -1,6 +1,7 @@
 package gg.scenarios.joust;
 
 import gg.scenarios.joust.commands.BracketCommand;
+import gg.scenarios.joust.commands.RulesCommand;
 import gg.scenarios.joust.commands.TournamentAdmin;
 import gg.scenarios.joust.listeners.PlayerListener;
 import gg.scenarios.joust.managers.ArenaManager;
@@ -45,6 +46,7 @@ public class Joust extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getCommand("tournament").setExecutor(new TournamentAdmin());
         getCommand("bracket").setExecutor(new BracketCommand());
+        getCommand("rules").setExecutor(new RulesCommand());
     }
 
 

@@ -2,10 +2,7 @@ package gg.scenarios.joust.listeners;
 
 import gg.scenarios.joust.Joust;
 import gg.scenarios.joust.challonge.GameType;
-import gg.scenarios.joust.managers.PlayerState;
-import gg.scenarios.joust.managers.Tournament;
-import gg.scenarios.joust.managers.TournamentPlayer;
-import gg.scenarios.joust.managers.TournamentState;
+import gg.scenarios.joust.managers.*;
 import gg.scenarios.joust.utils.Utils;
 import net.minecraft.server.v1_8_R3.PacketPlayOutRespawn;
 import org.apache.http.nio.pool.NIOConnFactory;
@@ -21,14 +18,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.concurrent.ExecutionException;
 
 public class PlayerListener implements Listener {
 
@@ -89,7 +87,7 @@ public class PlayerListener implements Listener {
         Player killer = (Player) damager.getShooter();
 
         double distance = killer.getLocation().distance(player.getLocation());
-        killer.sendMessage(ChatColor.translateAlternateColorCodes('&', joust.getPREFIX() + "&3"+ player.getName() + " &2is at &4" + Utils.getNf().format(player.getHealth())));
+        killer.sendMessage(ChatColor.translateAlternateColorCodes('&', joust.getPREFIX() + "&3" + player.getName() + " &2is at &4" + Utils.getNf().format(player.getHealth())));
     }
 
     @EventHandler
@@ -98,20 +96,24 @@ public class PlayerListener implements Listener {
     }
 
 
-
     @EventHandler
     public void onDeath(EntityDeathEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
         Player killed = (Player) event.getEntity();
+        Player killer = null;
         killed.setHealth(20);
 
         if (killed.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent dmgEvent = (EntityDamageByEntityEvent) killed.getLastDamageCause();
-            if (dmgEvent.getDamager() instanceof Player) {
-                Player killer = (Player) dmgEvent.getDamager();
+            if (dmgEvent.getDamager() instanceof Player || dmgEvent.getDamager() instanceof Arrow) {
+                try {
+                    killer = (Player) (((Arrow) dmgEvent.getDamager()).getShooter());
+                } catch (ClassCastException c) {
+                    killer = (Player) dmgEvent.getDamager();
+                }
                 killer.setHealth(20);
                 TournamentPlayer loser = TournamentPlayer.getTournamentPlayer(killed);
-                TournamentPlayer winner = TournamentPlayer.getTournamentPlayer(event.getEntity().getKiller());
+                TournamentPlayer winner = TournamentPlayer.getTournamentPlayer(killer);
 
                 event.getDrops().clear();
                 winner.getMatch().getArena().clear();
@@ -129,7 +131,7 @@ public class PlayerListener implements Listener {
                 loser.getPlayer().setFireTicks(0);
 
 
-                for (Player player :Bukkit.getOnlinePlayers()){
+                for (Player player : Bukkit.getOnlinePlayers()) {
                     if (!(Joust.mods.contains(player.getUniqueId()))) {
                         killed.showPlayer(player);
                         killer.showPlayer(player);
@@ -145,7 +147,7 @@ public class PlayerListener implements Listener {
 
                 Bukkit.getScheduler().runTaskLater(joust, () -> {
                     try {
-                           joust.getTournament().startNextMatch();
+                        joust.getTournament().startNextMatch();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -172,6 +174,22 @@ public class PlayerListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onInventoryClickEvent(InventoryClickEvent e) {
+        if (e.getInventory().getName().equalsIgnoreCase(ChatColor.GREEN + "Rules")) e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void sat(FoodLevelChangeEvent event) {
+        Player player = (Player) event.getEntity();
+        TournamentPlayer tournamentPlayer = TournamentPlayer.getTournamentPlayer(player);
+        if (tournamentPlayer.getState() == PlayerState.LOBBY) {
+            event.setFoodLevel(20);
+            player.setSaturation(10);
+            event.setCancelled(true);
+        }
+    }
+
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent e) {
@@ -187,19 +205,51 @@ public class PlayerListener implements Listener {
     public void onLogin(PlayerLoginEvent event) {
         if (joust.getTournament().getTournamentState() == TournamentState.LOBBY) {
             TournamentPlayer tournamentPlayer = new TournamentPlayer(event.getPlayer().getName(), event.getPlayer().getUniqueId(), PlayerState.LOBBY);
-        }else{
+        } else {
             TournamentPlayer tournamentPlayer = new TournamentPlayer(event.getPlayer().getName(), event.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
-
         }
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
+    public void onJoin(PlayerJoinEvent event) {
+        event.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) throws ExecutionException, InterruptedException {
         if (!(joust.getTournament().getTournamentState() == TournamentState.STARTED)) {
             TournamentPlayer tournamentPlayer = TournamentPlayer.getTournamentPlayer(event.getPlayer());
             if (!(tournamentPlayer == null)) {
                 TournamentPlayer.tournamentPlayerHashMap.remove(event.getPlayer().getName());
             }
+        } else {
+
+        }
+    }
+
+    @EventHandler
+    public void quitDuringMatch(PlayerQuitEvent event) {
+        if (joust.getTournament().getTournamentState() == TournamentState.STARTED) {
+            System.out.println("Left during match fucker: " + event.getPlayer());
+            TournamentPlayer losers = TournamentPlayer.getTournamentPlayer(event.getPlayer().getName());
+            TournamentMatch match = losers.getMatch();
+            try {
+                if (losers.getMatch().getPlayer1().equalsIgnoreCase(event.getPlayer().getName())) {
+                    forfeit(Bukkit.getPlayer(losers.getMatch().getPlayer2()), event.getPlayer().getName());
+                } else {
+                    forfeit(Bukkit.getPlayer(losers.getMatch().getPlayer1()), event.getPlayer().getName());
+                }
+            } catch (NullPointerException | ExecutionException | InterruptedException ignored) {
+            }
+        }
+    }
+
+    @EventHandler
+    public void damage(EntityDamageEvent event) {
+        if (event.getEntity().getType() != EntityType.PLAYER) return;
+        if (TournamentPlayer.getTournamentPlayer(event.getEntity().getName()).getState() == PlayerState.INGAME) {
+        } else {
+            event.setCancelled(true);
         }
     }
 
@@ -227,6 +277,50 @@ public class PlayerListener implements Listener {
                 }
             }
         }.runTaskLater(joust, 20 * 10); //set time here
+    }
+
+    private void forfeit(Player winner, String loser) throws ExecutionException, InterruptedException {
+        System.out.println(282);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!(Joust.mods.contains(player.getUniqueId()))) {
+                winner.showPlayer(player);
+            }
+        }
+        TournamentPlayer player = TournamentPlayer.getTournamentPlayer(winner);
+        TournamentPlayer losers = TournamentPlayer.getTournamentPlayer(loser);
+
+        Arenas a = player.getMatch().getArena();
+        a.setAvailable(true);
+        a.clear();
+        //TODO: set match to null;
+        player.setMatch(null);
+        losers.setMatch(null);
+        TournamentPlayer.getTournamentPlayer(winner).setState(PlayerState.LOBBY);
+        TournamentPlayer.getTournamentPlayer(loser).setState(PlayerState.LOBBY);
+
+
+        player.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
+
+        joust.getTournament().getChallonge().updateMatch(player.getMatchId(), winner.getName());
+        System.out.println("Updating: " + player.getMatchId());
+        player.getPlayer().sendMessage(ChatColor.RED + "Your opponent is not online so you have won");
+        Bukkit.getScheduler().runTaskLater(joust, () -> {
+            try {
+                joust.getTournament().startNextMatch();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 20 * 7);
+
+        player.setMatchId(0);
+        losers.setMatchId(0);
+
+
+        winner.getPlayer().getInventory().clear();
+        winner.getPlayer().getInventory().setBoots(null);
+        winner.getPlayer().getInventory().setHelmet(null);
+        winner.getPlayer().getInventory().setLeggings(null);
+        winner.getPlayer().getInventory().setChestplate(null);
     }
 
 }

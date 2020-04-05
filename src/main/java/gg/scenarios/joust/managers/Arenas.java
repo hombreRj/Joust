@@ -31,29 +31,26 @@ public class Arenas {
     }
 
 
+
+
     public void clear(){
-        Bukkit.getScheduler().runTaskAsynchronously(joust, ()->{
-            int x1 = (int) Math.max(spawn2.getX(), spawn1.getX());
-            int y1 = (int) Math.max(spawn2.getY(), spawn1.getY()) +2;
-            int z1 = (int) Math.max(spawn2.getZ(), spawn1.getZ());
+        System.out.println("Started Clearing Arena: " + this.getName());
 
-            int x2 = (int) Math.min(spawn2.getX(), spawn1.getX());
-            int y2 = (int) Math.min(spawn2.getY(), spawn1.getY()) -2;
-            int z2 = (int) Math.min(spawn2.getZ(), spawn1.getZ());
-
-
-            for (int x = x1; x <= x2; x++) {
-                for (int y = y1; y <= y2; y++) {
-                    for (int z = z1; z <= z2; z++) {
-                        if (Bukkit.getWorld("world").getBlockAt(x, y, z).getType() == Material.WATER || Bukkit.getWorld("world").getBlockAt(x, y, z).getType() == Material.STATIONARY_WATER || Bukkit.getWorld("world").getBlockAt(x, y, z).getType() == Material.LAVA|| Bukkit.getWorld("world").getBlockAt(x, y, z).getType() == Material.STATIONARY_LAVA ||
-                         Bukkit.getWorld("world").getBlockAt(x, y, z).getType() == Material.COBBLESTONE || Bukkit.getWorld("world").getBlockAt(x, y, z).getType() == Material.OBSIDIAN || Bukkit.getWorld("world").getBlockAt(x, y, z).getType() == Material.STONE){
-                            Bukkit.getWorld("world").getBlockAt(x, y, z).setType(Material.AIR);
+            Location loc1 = spawn1;
+            loc1.add(0, 2, 0);
+            Location loc2 = spawn2;
+            loc2.add(0, -2, 0);
+            for (Double x = loc1.getX(); x <= loc2.getX(); x++) {
+                for (Double y = loc1.getY(); y <= loc2.getY(); y++) {
+                    for (Double z = loc1.getZ(); z <= loc2.getZ(); z++) {
+                        Location lll = new Location(Bukkit.getWorld("world"), x.intValue() , y.intValue() , z.intValue());
+                        if (lll.getBlock().getType() == Material.WATER || lll.getBlock().getType() == Material.LAVA || lll.getBlock().getType() == Material.STATIONARY_WATER || lll.getBlock().getType() == Material.LAVA_BUCKET || lll.getBlock().getType() == Material.STONE || lll.getBlock().getType() == Material.COBBLESTONE || lll.getBlock().getType() == Material.OBSIDIAN){
+                            lll.getBlock().setType(Material.AIR);
                         }
                     }
                 }
             }
-        });
+        System.out.println("Finished Clearing Arena: " +getName());
     }
-
 
 }

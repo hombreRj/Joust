@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class TournamentMatch {
 
     private int id;
     private String player1, player2;
+    private Player ingame1, ingame2;
     private Arenas arena;
 
     public TournamentMatch(int id, String player1, String player2) throws Exception {
@@ -32,21 +34,23 @@ public class TournamentMatch {
         arena.setAvailable(false);
 
         //TODO: Start Match, startMatch(player1, player2, arena)
-        startMatch(Bukkit.getPlayer(player1), Bukkit.getPlayer(player2), arena);
+        ingame1 = Bukkit.getPlayer(player1);
+        if (ingame1 == null){
+            forfeit(Bukkit.getPlayer(player2), player1);
+            return;
+        }
+        ingame2 = Bukkit.getPlayer(player2);
+        if (ingame2 == null){
+            forfeit(Bukkit.getPlayer(player1), player2);
+            return;
+        }
+        startMatch(ingame1, ingame2, arena);
         matches.add(this);
     }
 
 
-    private void startMatch(Player player1, Player player2, Arenas arenas) throws ExecutionException, InterruptedException {
+    private void startMatch(Player player1, Player  player2, Arenas arenas) throws ExecutionException, InterruptedException {
 
-        if (player1 == null) {
-            forfeit(player2, this.player1);
-            return;
-        }
-        if (player2 == null) {
-            forfeit(player1, this.player2);
-            return;
-        }
         KitManager.giveKit(player1);
         KitManager.giveKit(player2);
         player1.teleport(arenas.getSpawn1());
@@ -68,8 +72,8 @@ public class TournamentMatch {
     }
 
     private void forfeit(Player winner, String loser) throws ExecutionException, InterruptedException {
-
-        for (Player player :Bukkit.getOnlinePlayers()){
+        System.out.println(282);
+        for (Player player : Bukkit.getOnlinePlayers()) {
             if (!(Joust.mods.contains(player.getUniqueId()))) {
                 winner.showPlayer(player);
             }
@@ -77,18 +81,20 @@ public class TournamentMatch {
         TournamentPlayer player = TournamentPlayer.getTournamentPlayer(winner);
         TournamentPlayer losers = TournamentPlayer.getTournamentPlayer(loser);
 
-        this.getArena().setAvailable(true);
-        this.getArena().clear();
+        Arenas a = getArena();
+        a.setAvailable(true);
+        a.clear();
         //TODO: set match to null;
         player.setMatch(null);
         losers.setMatch(null);
-        TournamentPlayer.getTournamentPlayer(player1).setState(PlayerState.LOBBY);
-        TournamentPlayer.getTournamentPlayer(player2).setState(PlayerState.LOBBY);
+        TournamentPlayer.getTournamentPlayer(winner).setState(PlayerState.LOBBY);
+        TournamentPlayer.getTournamentPlayer(loser).setState(PlayerState.LOBBY);
 
 
         player.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
 
-        joust.getTournament().getChallonge().updateMatch(player.getMatchId(), winner.getName());
+        joust.getTournament().getChallonge().updateMatch(this.id, winner.getName());
+        System.out.println("Updating: " + player.getMatchId());
         player.getPlayer().sendMessage(ChatColor.RED + "Your opponent is not online so you have won");
         Bukkit.getScheduler().runTaskLater(joust, () -> {
             try {

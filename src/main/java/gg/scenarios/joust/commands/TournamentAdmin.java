@@ -40,7 +40,7 @@ public class TournamentAdmin implements CommandExecutor {
                 } else if (args[0].equalsIgnoreCase("setup")) {
                     try {
                         System.out.println(joust.getTournament().setup());
-                        TournamentPlayer.tournamentPlayerHashMap.keySet().forEach(sl -> joust.getTournament().getChallonge().getParticipants().add(sl));
+                        TournamentPlayer.tournamentPlayerHashMap.values().stream().filter(TournamentPlayer::isOnline).forEach(sl -> joust.getTournament().getChallonge().getParticipants().add(sl.getName()));
 
                     } catch (ExecutionException | InterruptedException e) {
                         e.printStackTrace();
@@ -57,6 +57,7 @@ public class TournamentAdmin implements CommandExecutor {
                         e.printStackTrace();
                     }
                     player.sendMessage(ChatColor.RED + "Added members");
+                    Utils.broadcast(joust.getPREFIX() + "&c&LThe bracket has been generated use /bracket to view");
 
                 } else if (args[0].equalsIgnoreCase("start")) {
                     try {
