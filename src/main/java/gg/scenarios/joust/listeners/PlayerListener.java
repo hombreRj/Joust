@@ -1,31 +1,35 @@
 package gg.scenarios.joust.listeners;
 
 import gg.scenarios.joust.Joust;
-import gg.scenarios.joust.challonge.GameType;
 import gg.scenarios.joust.managers.*;
+import gg.scenarios.joust.managers.arena.Arena;
+import gg.scenarios.joust.managers.arena.ArenaManager;
+import gg.scenarios.joust.managers.enums.PlayerState;
+import gg.scenarios.joust.managers.enums.TournamentState;
+import gg.scenarios.joust.utils.ItemCreator;
 import gg.scenarios.joust.utils.Utils;
-import net.minecraft.server.v1_8_R3.PacketPlayOutRespawn;
-import org.apache.http.nio.pool.NIOConnFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 public class PlayerListener implements Listener {
@@ -102,7 +106,7 @@ public class PlayerListener implements Listener {
         Player killed = (Player) event.getEntity();
         Player killer = null;
         killed.setHealth(20);
-
+        killed.setFoodLevel(20);
         if (killed.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent dmgEvent = (EntityDamageByEntityEvent) killed.getLastDamageCause();
             if (dmgEvent.getDamager() instanceof Player || dmgEvent.getDamager() instanceof Arrow) {
@@ -175,8 +179,19 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onInventoryClickEvent(InventoryClickEvent e) {
+    public void onInventoryClickEvent(InventoryClickEvent e) throws Exception {
         if (e.getInventory().getName().equalsIgnoreCase(ChatColor.GREEN + "Rules")) e.setCancelled(true);
+        if (e.getInventory().getName().equalsIgnoreCase(ChatColor.RED + "Current Matches GUI")){
+            if (e.getCurrentItem().getType() != Material.PAPER) {
+                e.setCancelled(true);
+                return;
+            }else{
+                Arena arena = joust.getArenaManager().getArenaByName(ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()));
+                Player player = (Player) e.getWhoClicked();
+                player.teleport(arena.getSpecLocation());
+
+            }
+        }
     }
 
     @EventHandler
@@ -213,6 +228,12 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         event.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
+        event.getPlayer().getInventory().clear();
+        event.getPlayer().getInventory().setBoots(null);
+        event.getPlayer().getInventory().setHelmet(null);
+        event.getPlayer().getInventory().setLeggings(null);
+        event.getPlayer().getInventory().setChestplate(null);
+
     }
 
     @EventHandler
@@ -279,6 +300,16 @@ public class PlayerListener implements Listener {
         }.runTaskLater(joust, 20 * 10); //set time here
     }
 
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event){
+        if (event.getAction().equals(Action.RIGHT_CLICK_AIR) ){
+            if (event.getItem().equals(specCompress)) {
+                event.getPlayer().openInventory(openSpec());
+            }
+        }
+    }
+
+
     private void forfeit(Player winner, String loser) throws ExecutionException, InterruptedException {
         System.out.println(282);
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -289,7 +320,8 @@ public class PlayerListener implements Listener {
         TournamentPlayer player = TournamentPlayer.getTournamentPlayer(winner);
         TournamentPlayer losers = TournamentPlayer.getTournamentPlayer(loser);
 
-        Arenas a = player.getMatch().getArena();
+        Arena a = player.getMatch().getArena();
+        a.setMatch(null);
         a.setAvailable(true);
         a.clear();
         //TODO: set match to null;
@@ -321,6 +353,25 @@ public class PlayerListener implements Listener {
         winner.getPlayer().getInventory().setHelmet(null);
         winner.getPlayer().getInventory().setLeggings(null);
         winner.getPlayer().getInventory().setChestplate(null);
+    }
+
+    ItemStack specCompress = new ItemCreator(Material.COMPASS).setName(ChatColor.RED + "Current Matches GUI").get();
+
+    private Inventory openSpec(){
+        Inventory inventory = Bukkit.createInventory(null, 27, ChatColor.RED+"Matches");
+        int i =0;
+        for (Arena arena : Arena.arenasList) {
+            if (arena.getMatch() == null){
+                ItemStack noMatch = new ItemCreator(Material.PAPER).setName(ChatColor.RED + arena.getName()).setLore(Arrays.asList(ChatColor.RED +"No Match currently running", ChatColor.GREEN + "Click to teleport")).get();
+                inventory.setItem(i, noMatch);
+                i++;
+            }else{
+                ItemStack match = new ItemCreator(Material.PAPER).setName(ChatColor.RED + arena.getName()).setLore(Arrays.asList(ChatColor.GREEN +arena.getMatch().getPlayer1() + ChatColor.RED +" Vs. " + ChatColor.GREEN + arena.getMatch().getPlayer2(), ChatColor.GREEN + "Click to teleport")).get();
+                inventory.setItem(i, match);
+
+            }
+        }
+        return inventory;
     }
 
 }

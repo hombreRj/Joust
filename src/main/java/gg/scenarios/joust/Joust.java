@@ -4,17 +4,13 @@ import gg.scenarios.joust.commands.BracketCommand;
 import gg.scenarios.joust.commands.RulesCommand;
 import gg.scenarios.joust.commands.TournamentAdmin;
 import gg.scenarios.joust.listeners.PlayerListener;
-import gg.scenarios.joust.managers.ArenaManager;
-import gg.scenarios.joust.managers.Arenas;
+import gg.scenarios.joust.managers.arena.ArenaManager;
 import gg.scenarios.joust.managers.Tournament;
+import gg.scenarios.joust.managers.kit.KitManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +28,8 @@ public class Joust extends JavaPlugin {
 
     private final String PREFIX = "&8[&3Tournament&8] &r";
 
+    private KitManager kitManager;
+
 
 
     @Override
@@ -42,7 +40,7 @@ public class Joust extends JavaPlugin {
         arenaManager.init();
         tournament = new Tournament();
         tournament.setApiKey(API_KEY);
-
+        kitManager = new KitManager();
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getCommand("tournament").setExecutor(new TournamentAdmin());
         getCommand("bracket").setExecutor(new BracketCommand());

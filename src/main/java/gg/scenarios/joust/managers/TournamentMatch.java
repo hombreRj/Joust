@@ -1,14 +1,14 @@
 package gg.scenarios.joust.managers;
 
-import com.google.gson.internal.$Gson$Preconditions;
 import gg.scenarios.joust.Joust;
+import gg.scenarios.joust.managers.arena.Arena;
+import gg.scenarios.joust.managers.enums.PlayerState;
+import gg.scenarios.joust.managers.kit.KitManager;
 import gg.scenarios.joust.utils.Utils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class TournamentMatch {
     private int id;
     private String player1, player2;
     private Player ingame1, ingame2;
-    private Arenas arena;
+    private Arena arena;
 
     public TournamentMatch(int id, String player1, String player2) throws Exception {
         this.id = id;
@@ -49,11 +49,12 @@ public class TournamentMatch {
     }
 
 
-    private void startMatch(Player player1, Player  player2, Arenas arenas) throws ExecutionException, InterruptedException {
+    private void startMatch(Player player1, Player  player2, Arena arenas) throws ExecutionException, InterruptedException {
 
-        KitManager.giveKit(player1);
-        KitManager.giveKit(player2);
+        joust.getKitManager().giveKit(player1);
+        joust.getKitManager().giveKit(player2);
         player1.teleport(arenas.getSpawn1());
+        arenas.setMatch(this);
         TournamentPlayer.getTournamentPlayer(player1).setMatchId(id);
         player2.teleport(arenas.getSpawn2());
         TournamentPlayer.getTournamentPlayer(player1).setMatch(this);
@@ -81,7 +82,8 @@ public class TournamentMatch {
         TournamentPlayer player = TournamentPlayer.getTournamentPlayer(winner);
         TournamentPlayer losers = TournamentPlayer.getTournamentPlayer(loser);
 
-        Arenas a = getArena();
+        Arena a = getArena();
+        a.setMatch(null);
         a.setAvailable(true);
         a.clear();
         //TODO: set match to null;

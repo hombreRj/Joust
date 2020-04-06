@@ -1,5 +1,6 @@
 package gg.scenarios.joust.managers;
 
+import gg.scenarios.joust.managers.enums.PlayerState;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;

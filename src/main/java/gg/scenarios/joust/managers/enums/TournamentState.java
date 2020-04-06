@@ -1,4 +1,4 @@
-package gg.scenarios.joust.managers;
+package gg.scenarios.joust.managers.enums;
 
 public enum  TournamentState {
 

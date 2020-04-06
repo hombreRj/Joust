@@ -4,6 +4,10 @@ import gg.scenarios.joust.Joust;
 
 import gg.scenarios.joust.challonge.Challonge;
 import gg.scenarios.joust.challonge.GameType;
+import gg.scenarios.joust.managers.arena.Arena;
+import gg.scenarios.joust.managers.enums.KitType;
+import gg.scenarios.joust.managers.enums.PlayerState;
+import gg.scenarios.joust.managers.enums.TournamentState;
 import gg.scenarios.joust.utils.ItemCreator;
 import gg.scenarios.joust.utils.Utils;
 import lombok.Getter;
@@ -12,16 +16,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
 
 @Getter
 @Setter
@@ -36,6 +37,7 @@ public class Tournament {
     private List<TournamentPlayer> players;
     private GameType type = GameType.SINGLE;
     private TournamentState tournamentState;
+    private KitType kitType = KitType.UHC;
 
     Challonge challonge = new Challonge("AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT", "ScenariosUHC", "" + System.currentTimeMillis(), "test 1v1 tournament", "fun bracket", GameType.SINGLE);
 
@@ -71,7 +73,7 @@ public class Tournament {
     private void startMatches() throws ExecutionException, InterruptedException, Exception {
         Utils.broadcast(joust.getPREFIX() + "&c&lTournament is now starting matches are now being sent.");
 
-        for (Arenas arenas : Arenas.arenasList) {
+        for (Arena arenas : Arena.arenasList) {
             if (arenas.isAvailable()) {
                 startMatch(globalMatchNumber);
             }
@@ -162,7 +164,7 @@ public class Tournament {
 
         if (tournamentState == TournamentState.STARTED) {
             try {
-                Arenas arenas = joust.getArenaManager().getNextAvailableArena();
+                Arena arenas = joust.getArenaManager().getNextAvailableArena();
                 if (arenas.isAvailable()) {
                     System.out.println(110);
                     startMatch(globalMatchNumber);
@@ -216,7 +218,8 @@ public class Tournament {
         TournamentPlayer player = TournamentPlayer.getTournamentPlayer(winner);
         TournamentPlayer losers = TournamentPlayer.getTournamentPlayer(loser);
 
-        Arenas a =player.getMatch().getArena();
+        Arena a =player.getMatch().getArena();
+        a.setMatch(null);
         a.setAvailable(true);
         a.clear();
         //TODO: set match to null;
@@ -248,5 +251,7 @@ public class Tournament {
         winner.getPlayer().getInventory().setLeggings(null);
         winner.getPlayer().getInventory().setChestplate(null);
     }
+
+
 
 }
