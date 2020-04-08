@@ -29,7 +29,7 @@ public class TournamentPlayer {
     }
 
     public boolean isPlaying(){
-        return !state.equals(PlayerState.MOD) || !state.equals(PlayerState.SPECTATOR) || !state.equals(PlayerState.ELIMINATED);
+        return state == PlayerState.LOBBY;
     }
 
     public static TournamentPlayer getTournamentPlayer(Player player){

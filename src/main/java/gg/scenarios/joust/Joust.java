@@ -7,6 +7,8 @@ import gg.scenarios.joust.listeners.PlayerListener;
 import gg.scenarios.joust.managers.arena.ArenaManager;
 import gg.scenarios.joust.managers.Tournament;
 import gg.scenarios.joust.managers.kit.KitManager;
+import gg.scenarios.joust.nms.NMS;
+import gg.scenarios.joust.nms.verisons.v1_8_R3;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,7 +31,8 @@ public class Joust extends JavaPlugin {
     private final String PREFIX = "&8[&3Tournament&8] &r";
 
     private KitManager kitManager;
-
+    @Getter
+    private NMS nms = new v1_8_R3();
 
 
     @Override
@@ -45,6 +48,8 @@ public class Joust extends JavaPlugin {
         getCommand("tournament").setExecutor(new TournamentAdmin());
         getCommand("bracket").setExecutor(new BracketCommand());
         getCommand("rules").setExecutor(new RulesCommand());
+
+        System.out.println(tournament);
     }
 
 

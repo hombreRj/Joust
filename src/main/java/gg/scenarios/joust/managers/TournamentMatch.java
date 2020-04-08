@@ -57,6 +57,8 @@ public class TournamentMatch {
         arenas.setMatch(this);
         TournamentPlayer.getTournamentPlayer(player1).setMatchId(id);
         player2.teleport(arenas.getSpawn2());
+        joust.getNms().addVehicle(player1);
+        joust.getNms().addVehicle(player2);
         TournamentPlayer.getTournamentPlayer(player1).setMatch(this);
         TournamentPlayer.getTournamentPlayer(player2).setMatchId(id);
         TournamentPlayer.getTournamentPlayer(player1).setState(PlayerState.INGAME);
@@ -70,6 +72,12 @@ public class TournamentMatch {
             }
         }
         Utils.broadcast(joust.getPREFIX() + ChatColor.GREEN + player1.getName() + ChatColor.RED + " is now fighting " + ChatColor.GREEN + player2.getName() + ChatColor.RED + " at arena " + ChatColor.GREEN + arenas.getName());
+        player1.sendMessage(ChatColor.GREEN + "Match is starting in 5 seconds");
+        player2.sendMessage(ChatColor.GREEN + "Match is starting in 5 seconds");
+        Bukkit.getScheduler().runTaskLater(joust, ()->{
+            joust.getNms().removeVehicle(player1);
+            joust.getNms().removeVehicle(player2);
+        }, 20*5);
     }
 
     private void forfeit(Player winner, String loser) throws ExecutionException, InterruptedException {

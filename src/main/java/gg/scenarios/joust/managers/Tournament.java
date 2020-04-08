@@ -37,9 +37,19 @@ public class Tournament {
     private List<TournamentPlayer> players;
     private GameType type = GameType.SINGLE;
     private TournamentState tournamentState;
-    private KitType kitType = KitType.UHC;
+    private KitType kitType = KitType.BUILD;
 
-    Challonge challonge = new Challonge("AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT", "ScenariosUHC", "" + System.currentTimeMillis(), "test 1v1 tournament", "fun bracket", GameType.SINGLE);
+
+    @Override
+    public String toString() {
+        return "Tournament{" +
+                "type=" + type +
+                ", tournamentState=" + tournamentState +
+                ", kitType=" + kitType +
+                '}';
+    }
+
+    Challonge challonge = new Challonge("AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT", "ScenariosUHC", name + System.currentTimeMillis(), name + tournamentNum + " PvP tournament", "This tournament took place on na2.scenarios.gg", GameType.SINGLE);
 
 
     public Tournament(String name, String tournamentNum, String description) {
@@ -68,7 +78,6 @@ public class Tournament {
     }
 
 
-    int winner = 0;
 
     private void startMatches() throws ExecutionException, InterruptedException, Exception {
         Utils.broadcast(joust.getPREFIX() + "&c&lTournament is now starting matches are now being sent.");

@@ -40,7 +40,7 @@ public class RulesCommand implements CommandExecutor  {
         rulesLore.add(ChatColor.GREEN + "» There will be no rematches.");
         rulesLore.add(ChatColor.GREEN + " ");
         rulesLore.add(ChatColor.GREEN + "» Leaving the game whilst a tournament is.");
-        rulesLore.add(ChatColor.GREEN + "» Ongoing might result in a disqualification.");
+        rulesLore.add(ChatColor.GREEN + "» Ongoing will result in a disqualification.");
         rulesLore.add(ChatColor.GREEN + " ");
         rulesLore.add(ChatColor.GREEN + "» Exploiting game-breaking plugin .");
         rulesLore.add(ChatColor.GREEN + "» issues/abusing bugs will result in a punishment.");

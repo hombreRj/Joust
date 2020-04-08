@@ -91,7 +91,19 @@ public class PlayerListener implements Listener {
         Player killer = (Player) damager.getShooter();
 
         double distance = killer.getLocation().distance(player.getLocation());
-        killer.sendMessage(ChatColor.translateAlternateColorCodes('&', joust.getPREFIX() + "&3" + player.getName() + " &2is at &4" + Utils.getNf().format(player.getHealth())));
+        killer.sendMessage(ChatColor.translateAlternateColorCodes('&', joust.getPREFIX() + "&7 " + player.getName() + " &7is at " + formatDamage(player.getHealth())));
+    }
+
+    public String formatDamage(double health) {
+        if (health >= 15) {
+            return ChatColor.GREEN + "" + Utils.getNf().format(health);
+        } else if (health >= 10) {
+            return ChatColor.YELLOW + "" + Utils.getNf().format(health);
+        } else if (health >= 5) {
+            return ChatColor.RED + "" + Utils.getNf().format(health);
+        }else{
+            return ChatColor.DARK_RED + "" + Utils.getNf().format(health);
+        }
     }
 
     @EventHandler
@@ -174,6 +186,8 @@ public class PlayerListener implements Listener {
                 loser.getPlayer().getInventory().setChestplate(null);
 
 
+                loser.getPlayer().getInventory().addItem(specCompress);
+                winner.getPlayer().getInventory().addItem(specCompress);
             }
         }
     }
@@ -181,15 +195,15 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent e) throws Exception {
         if (e.getInventory().getName().equalsIgnoreCase(ChatColor.GREEN + "Rules")) e.setCancelled(true);
-        if (e.getInventory().getName().equalsIgnoreCase(ChatColor.RED + "Current Matches GUI")){
+        if (e.getInventory().getName().equalsIgnoreCase(ChatColor.RED + "Matches")) {
             if (e.getCurrentItem().getType() != Material.PAPER) {
                 e.setCancelled(true);
-                return;
-            }else{
+            } else {
                 Arena arena = joust.getArenaManager().getArenaByName(ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()));
                 Player player = (Player) e.getWhoClicked();
                 player.teleport(arena.getSpecLocation());
-
+                e.setCancelled(true);
+                ((Player) e.getWhoClicked()).getPlayer().closeInventory();
             }
         }
     }
@@ -205,6 +219,14 @@ public class PlayerListener implements Listener {
         }
     }
 
+
+    @EventHandler
+    public void onFall(EntityDamageEvent event) {
+        if (event.getEntity().getType() != EntityType.PLAYER) return;
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+            event.setCancelled(true);
+        }
+    }
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent e) {
@@ -233,6 +255,7 @@ public class PlayerListener implements Listener {
         event.getPlayer().getInventory().setHelmet(null);
         event.getPlayer().getInventory().setLeggings(null);
         event.getPlayer().getInventory().setChestplate(null);
+        event.getPlayer().getInventory().addItem(specCompress);
 
     }
 
@@ -301,8 +324,8 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event){
-        if (event.getAction().equals(Action.RIGHT_CLICK_AIR) ){
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getAction().equals(Action.RIGHT_CLICK_AIR)) {
             if (event.getItem().equals(specCompress)) {
                 event.getPlayer().openInventory(openSpec());
             }
@@ -357,16 +380,16 @@ public class PlayerListener implements Listener {
 
     ItemStack specCompress = new ItemCreator(Material.COMPASS).setName(ChatColor.RED + "Current Matches GUI").get();
 
-    private Inventory openSpec(){
-        Inventory inventory = Bukkit.createInventory(null, 27, ChatColor.RED+"Matches");
-        int i =0;
+    private Inventory openSpec() {
+        Inventory inventory = Bukkit.createInventory(null, 27, ChatColor.RED + "Matches");
+        int i = 0;
         for (Arena arena : Arena.arenasList) {
-            if (arena.getMatch() == null){
-                ItemStack noMatch = new ItemCreator(Material.PAPER).setName(ChatColor.RED + arena.getName()).setLore(Arrays.asList(ChatColor.RED +"No Match currently running", ChatColor.GREEN + "Click to teleport")).get();
+            if (arena.getMatch() == null) {
+                ItemStack noMatch = new ItemCreator(Material.PAPER).setName(ChatColor.RED + arena.getName()).setLore(Arrays.asList(ChatColor.RED + "No Match currently running", ChatColor.GREEN + "Click to teleport")).get();
                 inventory.setItem(i, noMatch);
                 i++;
-            }else{
-                ItemStack match = new ItemCreator(Material.PAPER).setName(ChatColor.RED + arena.getName()).setLore(Arrays.asList(ChatColor.GREEN +arena.getMatch().getPlayer1() + ChatColor.RED +" Vs. " + ChatColor.GREEN + arena.getMatch().getPlayer2(), ChatColor.GREEN + "Click to teleport")).get();
+            } else {
+                ItemStack match = new ItemCreator(Material.PAPER).setName(ChatColor.RED + arena.getName()).setLore(Arrays.asList(ChatColor.GREEN + arena.getMatch().getPlayer1() + ChatColor.RED + " Vs. " + ChatColor.GREEN + arena.getMatch().getPlayer2(), ChatColor.GREEN + "Click to teleport")).get();
                 inventory.setItem(i, match);
 
             }

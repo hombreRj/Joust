@@ -93,16 +93,16 @@ public class KitManager {
         pinv.clear();
 
         ItemStack helmet = new ItemStack(Material.DIAMOND_HELMET);
-        helmet.addUnsafeEnchantment(Enchantment.PROTECTION_PROJECTILE, 1);
+        helmet.addUnsafeEnchantment(Enchantment.PROTECTION_PROJECTILE, 2);
 
         ItemStack chest = new ItemStack(Material.IRON_CHESTPLATE);
-        chest.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
+        chest.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 2);
 
         ItemStack leg = new ItemStack(Material.IRON_LEGGINGS);
-        leg.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
+        leg.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 2);
 
         ItemStack boots = new ItemStack(Material.IRON_BOOTS);
-        boots.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
+        boots.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 2);
 
         ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
         sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 2);
