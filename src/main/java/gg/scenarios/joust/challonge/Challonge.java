@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 @Getter
-@Setter
 public class Challonge {
 
     public List<String> participants;
@@ -25,8 +24,9 @@ public class Challonge {
     private GameType gameType;
     private HttpResponse<JsonNode> response;
 
-    public static HashMap<String, Integer> partId = new HashMap<>();
-    public static HashMap<Integer, String> matchIds = new HashMap<>();
+    public HashMap<String, Integer> partId = new HashMap<>();
+    public HashMap<Integer, String> matchIds = new HashMap<>();
+    public HashMap<Integer, Integer> matchRound = new HashMap<>();
 
     public Challonge(String api, String username, String url, String name, String description, GameType gameType) {
         this.api = api;
@@ -40,11 +40,10 @@ public class Challonge {
 
 
     /**
-     *
      * @param id id of the user you want to get
      * @return String name of the user based of the ID
      */
-    public String getNameFromId(Integer id){
+    public String getNameFromId(Integer id) {
         for (Map.Entry<String, Integer> entry : partId.entrySet()) {
             if (entry.getValue().equals(id)) {
                 return entry.getKey();
@@ -55,6 +54,7 @@ public class Challonge {
 
     /**
      * initial method for posting the match
+     *
      * @return
      */
   /*  public boolean post3() {
@@ -69,8 +69,6 @@ public class Challonge {
         this.response = response;
         return response.getStatus() == 200;
     }*/
-
-
     public CompletableFuture<Boolean> post() {
         return supplyAsync(() -> {
             HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments.json")
@@ -88,7 +86,6 @@ public class Challonge {
     }
 
     /**
-     *
      * @return if successful
      */
    /* public boolean addParticpants() {
@@ -113,8 +110,6 @@ public class Challonge {
         }
         return response.getStatus() == 200;
     }*/
-
-
     public CompletableFuture<Boolean> addParticpants() {
         return supplyAsync(() -> {
             HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/participants/bulk_add.json".replace("{tournament}", url))
@@ -134,7 +129,6 @@ public class Challonge {
                     int id = value.getInt("id");
                     String name = value.getString("name");
                     partId.put(name, id);
-                    System.out.println(name + id);
                 }
             }
             this.response = response;
@@ -144,11 +138,11 @@ public class Challonge {
     }
 
 
-
     /**
-     *      Adds matches to HashMap based of their match ID starting at 1
+     * Adds matches to HashMap based of their match ID starting at 1
+     *
      * @return if successful
-     * */
+     */
     /*public boolean indexMatches() {
         HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches.json".replace("{tournament}", url))
                 .header("accept", "application/json")
@@ -171,8 +165,6 @@ public class Challonge {
         }
         return response.getStatus() == 200;
     }*/
-
-
     public CompletableFuture<Boolean> indexMatches() {
         return supplyAsync(() -> {
             HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches.json".replace("{tournament}", url))
@@ -189,17 +181,29 @@ public class Challonge {
                 while (keys.hasNext()) {
                     Object key = keys.next();
                     JSONObject value = object.getJSONObject((String) key);
-                    Integer id =  value.getInt("id");
+                    Integer id = value.getInt("id");
                     this.matchIds.put(m, String.valueOf(id));
                 }
                 m++;
             }
+
+            for (int i = 1; i < getMatchIds().keySet().size() + 1; i++) {
+                try {
+                    matchRound.put(i, getRound(i));
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
             return response.getStatus() == 200;
         });
     }
 
     /**
      * gets the URL of the match
+     *
      * @return match URL
      */
     public String getUrl() {
@@ -208,6 +212,7 @@ public class Challonge {
 
     /**
      * Sets the tournament as started
+     *
      * @return if successful
      */
     /*public boolean start() {
@@ -221,8 +226,6 @@ public class Challonge {
             return false;
         }
     }*/
-
-
     public CompletableFuture<Boolean> start() {
         return supplyAsync(() -> {
             HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/start.json".replace("{tournament}", url))
@@ -235,6 +238,7 @@ public class Challonge {
 
     /**
      * ends the tournament and archives the match post
+     *
      * @return
      */
     public CompletableFuture<Boolean> end() {
@@ -249,6 +253,7 @@ public class Challonge {
 
     /**
      * Randomizes the seeds
+     *
      * @return if successful
      */
     public CompletableFuture<Boolean> randomize() {
@@ -262,7 +267,6 @@ public class Challonge {
     }
 
     /**
-     *
      * @param id match id
      * @return the jsonarray of a match
      */
@@ -275,8 +279,6 @@ public class Challonge {
                 .asJson();
         return response.getBody().getArray();
     }*/
-
-
     public CompletableFuture<JSONArray> getMatch(int id) {
         return supplyAsync(() -> {
             HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
@@ -395,7 +397,6 @@ public class Challonge {
 
 
     /**
-     *
      * @param matchId
      * @return array of particpants in the match
      */
@@ -426,10 +427,22 @@ public class Challonge {
         };
     }*/
 
-/*    public String getRound(int matchId) {
-        JSONObject match = getMatch(matchId).getJSONObject(0).getJSONObject("match");
-        return (String) match.get("round");
-    }*/
+    public int getRound(int matchId) throws ExecutionException, InterruptedException {
+        JSONObject match = getMatch(matchId).get().getJSONObject(0).getJSONObject("match");
+        return match.getInt("round");
+    }
+
+    public int end = 0;
+
+    public List<Integer> getMatchesFromRound(int round) throws ExecutionException, InterruptedException {
+        List<Integer> temp = new ArrayList<>();
+        for (int i = 1; i < matchRound.keySet().size() +1; i++) {
+            if (matchRound.get(i) == round){
+                temp.add(i);
+            }
+        }
+        return temp;
+    }
 
   /* public ArrayList<JSONObject> getMatches(String participantName) {
         ArrayList<JSONObject> matches = new ArrayList<>();
