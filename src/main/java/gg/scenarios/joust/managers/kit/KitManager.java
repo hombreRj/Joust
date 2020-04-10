@@ -108,7 +108,7 @@ public class KitManager {
         sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 2);
 
         ItemStack bow = new ItemStack(Material.BOW);
-        bow.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 2);
+        bow.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1);
 
 
         ItemStack goldenHead = new ItemStack(Material.GOLDEN_APPLE, 1);

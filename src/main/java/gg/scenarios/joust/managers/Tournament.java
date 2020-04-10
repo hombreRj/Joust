@@ -5,6 +5,7 @@ import gg.scenarios.joust.Joust;
 import gg.scenarios.joust.challonge.Challonge;
 import gg.scenarios.joust.challonge.GameType;
 import gg.scenarios.joust.managers.arena.Arena;
+import gg.scenarios.joust.managers.arena.ArenaManager;
 import gg.scenarios.joust.managers.enums.KitType;
 import gg.scenarios.joust.managers.enums.PlayerState;
 import gg.scenarios.joust.managers.enums.TournamentState;
@@ -12,6 +13,7 @@ import gg.scenarios.joust.utils.ItemCreator;
 import gg.scenarios.joust.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.ObjectUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -78,21 +80,24 @@ public class Tournament {
 
 
     private void startMatches() throws ExecutionException, InterruptedException, Exception {
-        Utils.broadcast(joust.getPREFIX() + "&c&lRound &a" + round + " &c has started!");
-        if (round == 1) {
-            startNextRound();
-        }
-        System.out.println(83 +" starting next round");
+        Utils.broadcast(joust.getPREFIX() + "&c&lRound &a" + round + " &c&l has started!");
+
         for (Arena arenas : Arena.arenasList) {
             if (arenas.isAvailable()) {
                 try {
-                    startMatch(matchQueue.element());
+                    startMatch(matchQueue.remove());
+                } catch (NullPointerException e) {
+                    System.out.println("Cannot start match - Too many arenas available");
                 } catch (NoSuchElementException e) {
+                    for (Arena arena : Arena.arenasList) {
+                        if (!arena.isAvailable()) {
+                            throw new IllegalStateException("There is still a match going on");
+                        }
+                    }
+                    System.out.println("Could");
                     startNextRound();
                 }
             }
-            globalMatchNumber++;
-            System.out.println(globalMatchNumber);
         }
     }
 
@@ -109,7 +114,7 @@ public class Tournament {
 
         Bukkit.getScheduler().runTaskLater(joust, () -> {
             try {
-                startMatches();
+                startNextRound();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -174,25 +179,20 @@ public class Tournament {
     }
 
     public void startNextMatch() throws Exception {
-        System.out.println(105);
-//todo: rmeove element at end of match
+        System.out.println("Starting next match");
         if (tournamentState == TournamentState.STARTED) {
             try {
-                int id = matchQueue.element();
-
-
+                int id = matchQueue.remove();
                 try {
                     Arena arenas = joust.getArenaManager().getNextAvailableArena();
                     if (arenas.isAvailable()) {
-                        System.out.println(110);
-
+                        System.out.println("Found Available Arena");
                         startMatch(id);
                     } else {
-                        System.out.println(114);
                         System.out.println("Could not load arena trying again in 10 seconds");
                         Bukkit.getScheduler().runTaskLater(joust, () -> {
                             try {
-                                System.out.println(117);
+                                System.out.println("Starting match after 10 seconds");
                                 startMatch(id);
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -202,15 +202,21 @@ public class Tournament {
                 } catch (Exception p) {
                     p.printStackTrace();
                 }
-            }catch (NoSuchElementException e){
+            } catch (NoSuchElementException e) {
+                System.out.println("Starting next round Line: " +206 + " startNextMatch");
                 startNextRound();
             }
         }
     }
 
     public void startMatch(int matchNumber) throws Exception {
-        System.out.println(130);
-        Integer[] names = challonge.getMatchParticipants(matchNumber).get();
+        System.out.println("Start match: " + matchNumber);
+        Integer[] names = null;
+        try {
+            names = challonge.getMatchParticipants(matchNumber).get();
+        }catch (NullPointerException e){
+            throw new NullPointerException("MatchParticipants are not found");
+        }
         try {
             TournamentPlayer p2 = TournamentPlayer.getTournamentPlayer(challonge.getNameFromId(names[0]));
         } catch (NullPointerException e) {
@@ -221,7 +227,7 @@ public class Tournament {
         } catch (NullPointerException e) {
             forfeit(Bukkit.getPlayer(challonge.getNameFromId(names[0])), challonge.getNameFromId(names[1]));
         }
-        TournamentMatch match = new TournamentMatch(matchNumber, challonge.getNameFromId(names[0]), challonge.getNameFromId(names[1]));
+        new TournamentMatch(matchNumber, challonge.getNameFromId(names[0]), challonge.getNameFromId(names[1]));
     }
 
 
@@ -249,7 +255,6 @@ public class Tournament {
         player.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
 
         joust.getTournament().getChallonge().updateMatch(player.getMatchId(), winner.getName());
-        matchQueue.remove(player.getMatchId());
         player.getPlayer().sendMessage(ChatColor.RED + "Your opponent is not online so you have won");
         Bukkit.getScheduler().runTaskLater(joust, () -> {
             try {
@@ -273,17 +278,19 @@ public class Tournament {
 
     public void startNextRound() throws ExecutionException, InterruptedException, Exception {
         if (matchQueue.isEmpty()) {
+            for (Arena arena : Arena.arenasList) {
+                if (!arena.isAvailable()) {
+                    throw new IllegalStateException("There is still a match going on");
+                }
+            }
             System.out.println("adding new matches");
             try {
                 matchQueue.addAll(challonge.getMatchesFromRound(round));
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (round != 1){
-                startMatches();
-                System.out.println("starting new matches");
-
-            }
+            startMatches();
+            System.out.println("starting new matches round: " + round);
             round++;
         } else {
             throw new Exception("Cannot start next round as there are still matches in this round");

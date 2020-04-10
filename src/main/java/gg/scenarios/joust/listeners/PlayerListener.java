@@ -155,7 +155,6 @@ public class PlayerListener implements Listener {
                 }
 
                 Utils.broadcast(joust.getPREFIX() + ChatColor.GREEN + winner.getName() + ChatColor.RED + " has beaten " + ChatColor.GREEN + loser.getName());
-                joust.getTournament().getMatchQueue().remove(winner.getMatchId());
 
                 joust.getTournament().getChallonge().updateMatch(winner.getMatchId(), winner.getName());
 
@@ -357,7 +356,6 @@ public class PlayerListener implements Listener {
 
 
         player.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
-        joust.getTournament().getMatchQueue().remove(player.getMatchId());
 
         joust.getTournament().getChallonge().updateMatch(player.getMatchId(), winner.getName());
         System.out.println("Updating: " + player.getMatchId());

@@ -102,7 +102,6 @@ public class TournamentMatch {
 
 
         player.getPlayer().teleport(Bukkit.getWorld("world").getSpawnLocation());
-        joust.getTournament().getMatchQueue().remove(this.id);
 
         joust.getTournament().getChallonge().updateMatch(this.id, winner.getName());
         System.out.println("Updating: " + player.getMatchId());

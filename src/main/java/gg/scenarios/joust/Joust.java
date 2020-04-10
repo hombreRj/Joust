@@ -58,5 +58,7 @@ public class Joust extends JavaPlugin {
         saveConfig();
     }
 
-
+    public static Joust getInstance() {
+        return instance;
+    }
 }
