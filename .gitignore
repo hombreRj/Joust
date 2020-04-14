@@ -20,3 +20,5 @@ joust.xml
 joust.properties
 .idea/artifacts/Joust_jar.xml
 /target/
+target/Joust-1.0-SNAPSHOT.jar
+*.jar

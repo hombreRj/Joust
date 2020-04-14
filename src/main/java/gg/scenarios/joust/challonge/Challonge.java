@@ -319,6 +319,16 @@ public class Challonge {
         });
     }
 
+    public Integer getMatchIdFromChallongeId(String id){
+        for (Map.Entry<Integer, String> entry : matchIds.entrySet()){
+            if(entry.getValue().equals(id)){
+                return entry.getKey();
+            }
+        }
+
+        return -1;
+    }
+
     public CompletableFuture<Boolean> updateMatch(int id, int winneriD) {
         return supplyAsync(() -> {
             HttpResponse<JsonNode> response = Unirest.put("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".

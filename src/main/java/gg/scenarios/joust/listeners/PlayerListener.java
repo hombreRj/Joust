@@ -91,7 +91,7 @@ public class PlayerListener implements Listener {
         Player killer = (Player) damager.getShooter();
 
         double distance = killer.getLocation().distance(player.getLocation());
-        killer.sendMessage(ChatColor.translateAlternateColorCodes('&', joust.getPREFIX() + "&7 " + player.getName() + " &7is at " + formatDamage(player.getHealth())));
+        killer.sendMessage(ChatColor.translateAlternateColorCodes('&', joust.getPvpPrefix() + "&7" + player.getName() + " &7is at " + formatDamage(player.getHealth())));
     }
 
     public String formatDamage(double health) {

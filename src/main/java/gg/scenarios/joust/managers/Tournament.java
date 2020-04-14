@@ -30,7 +30,7 @@ public class Tournament {
 
     private Joust joust = Joust.getInstance();
 
-    public static int globalMatchNumber = 1, round = 1;
+    public static int globalMatchNumber = 1, round = 1, lastRound = 1;
 
     private String name, url, tournamentNum, description, apiKey, bracketURL;
     private List<TournamentPlayer> host;
@@ -49,7 +49,7 @@ public class Tournament {
                 '}';
     }
 
-    Challonge challonge = new Challonge(Joust.getInstance().getAPI_KEY(), "ScenariosUHC", name + System.currentTimeMillis(), name + tournamentNum + " PvP tournament", "This tournament took place on na2.scenarios.gg", GameType.SINGLE);
+    Challonge challonge = new Challonge(Joust.getInstance().getAPI_KEY(), "ScenariosUHC", "Scenarios" + System.currentTimeMillis(), "Scenarios 1v1 PvP tournament", "This tournament took place on na2.scenarios.gg", GameType.SINGLE);
 
 
     public Tournament(String name, String tournamentNum, String description) {
@@ -80,8 +80,11 @@ public class Tournament {
 
 
     private void startMatches() throws ExecutionException, InterruptedException, Exception {
-        Utils.broadcast(joust.getPREFIX() + "&c&lRound &a" + round + " &c&l has started!");
-
+        if (matchQueue.isEmpty()){
+            end();
+            return;
+        }
+        Utils.broadcast(joust.getPREFIX() + "&c&lRound &a" + (round -1)+ " &c&l has started!");
         for (Arena arenas : Arena.arenasList) {
             if (arenas.isAvailable()) {
                 try {
@@ -107,6 +110,7 @@ public class Tournament {
         challonge.start().get();
         challonge.indexMatches().get();
 
+
         Inventory rules = tournamentRules();
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.openInventory(rules);
@@ -122,46 +126,7 @@ public class Tournament {
 
     }
 
-    private Inventory tournamentRules() {
-        Inventory rules = Bukkit.createInventory(null, 27, ChatColor.GREEN + "Rules");
-        List<String> rulesLore = new ArrayList<>();
 
-        rulesLore.add(ChatColor.RED + " " + ChatColor.STRIKETHROUGH + "-------------------------------------------------------------");
-        rulesLore.add(ChatColor.GREEN + "» Tournament Rules");
-        rulesLore.add(ChatColor.GREEN + "» Any use of hacked clients or .");
-        rulesLore.add(ChatColor.GREEN + "» Illegal mods will result in a punishment.");
-        rulesLore.add(ChatColor.GREEN + " ");
-        rulesLore.add(ChatColor.GREEN + "» All tournament matches are final.");
-        rulesLore.add(ChatColor.GREEN + "» There will be no rematches.");
-        rulesLore.add(ChatColor.GREEN + " ");
-        rulesLore.add(ChatColor.GREEN + "» Leaving the game whilst a tournament is.");
-        rulesLore.add(ChatColor.GREEN + "» Ongoing might result in a disqualification.");
-        rulesLore.add(ChatColor.GREEN + " ");
-        rulesLore.add(ChatColor.GREEN + "» Exploiting game-breaking plugin .");
-        rulesLore.add(ChatColor.GREEN + "» issues/abusing bugs will result in a punishment.");
-        rulesLore.add(ChatColor.GREEN + " ");
-        rulesLore.add(ChatColor.GREEN + "» Any sort of poor sportsmanship.");
-        rulesLore.add(ChatColor.GREEN + "» Harassment or bullying will result in a punishment.");
-        rulesLore.add(ChatColor.GREEN + " ");
-        rulesLore.add(ChatColor.GREEN + "» Purposely delaying/disrupting the match will");
-        rulesLore.add(ChatColor.GREEN + "» Result in a disqualification Repeated offenders will be punished.");
-
-        rulesLore.add(ChatColor.RED + " " + ChatColor.STRIKETHROUGH + "-------------------------------------------------------------");
-
-        ItemStack spacer = new ItemCreator(Material.STAINED_GLASS_PANE).setName(" ").get();
-
-
-        ItemStack rule = new ItemCreator(Material.PAPER).setLore(rulesLore).setName(ChatColor.RED + "Rules").get();
-        rules.setItem(13, rule);
-
-        for (int i = 0; i < rules.getContents().length; i++) {
-            if (rules.getContents()[i] == null) {
-                rules.setItem(i, spacer);
-            }
-        }
-
-        return rules;
-    }
 
 
     public void randomize() throws ExecutionException, InterruptedException {
@@ -176,9 +141,16 @@ public class Tournament {
     public void end() throws ExecutionException, InterruptedException {
         tournamentState = TournamentState.OVER;
         challonge.end().get();
+        Utils.broadcast(joust.getPREFIX() + "&c&LThe tournament is now over view the bracket at");
+        Utils.broadcast("&c&o" + joust.getTournament().getBracketURL());
     }
 
     public void startNextMatch() throws Exception {
+        if (round == lastRound){
+            end();
+            return;
+        }
+
         System.out.println("Starting next match");
         if (tournamentState == TournamentState.STARTED) {
             try {
@@ -277,23 +249,64 @@ public class Tournament {
 
 
     public void startNextRound() throws ExecutionException, InterruptedException, Exception {
+        List<Integer> matches = challonge.getMatchesFromRound(round);
         if (matchQueue.isEmpty()) {
             for (Arena arena : Arena.arenasList) {
                 if (!arena.isAvailable()) {
                     throw new IllegalStateException("There is still a match going on");
                 }
             }
-            System.out.println("adding new matches");
             try {
-                matchQueue.addAll(challonge.getMatchesFromRound(round));
+                matchQueue.addAll(matches);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            startMatches();
             System.out.println("starting new matches round: " + round);
             round++;
+            startMatches();
         } else {
             throw new Exception("Cannot start next round as there are still matches in this round");
         }
+    }
+
+    private Inventory tournamentRules() {
+        Inventory rules = Bukkit.createInventory(null, 27, ChatColor.GREEN + "Rules");
+        List<String> rulesLore = new ArrayList<>();
+
+        rulesLore.add(ChatColor.RED + " " + ChatColor.STRIKETHROUGH + "-------------------------------------------------------------");
+        rulesLore.add(ChatColor.GREEN + "» Tournament Rules");
+        rulesLore.add(ChatColor.GREEN + "» Any use of hacked clients or .");
+        rulesLore.add(ChatColor.GREEN + "» Illegal mods will result in a punishment.");
+        rulesLore.add(ChatColor.GREEN + " ");
+        rulesLore.add(ChatColor.GREEN + "» All tournament matches are final.");
+        rulesLore.add(ChatColor.GREEN + "» There will be no rematches.");
+        rulesLore.add(ChatColor.GREEN + " ");
+        rulesLore.add(ChatColor.GREEN + "» Leaving the game whilst a tournament is.");
+        rulesLore.add(ChatColor.GREEN + "» Ongoing might result in a disqualification.");
+        rulesLore.add(ChatColor.GREEN + " ");
+        rulesLore.add(ChatColor.GREEN + "» Exploiting game-breaking plugin .");
+        rulesLore.add(ChatColor.GREEN + "» issues/abusing bugs will result in a punishment.");
+        rulesLore.add(ChatColor.GREEN + " ");
+        rulesLore.add(ChatColor.GREEN + "» Any sort of poor sportsmanship.");
+        rulesLore.add(ChatColor.GREEN + "» Harassment or bullying will result in a punishment.");
+        rulesLore.add(ChatColor.GREEN + " ");
+        rulesLore.add(ChatColor.GREEN + "» Purposely delaying/disrupting the match will");
+        rulesLore.add(ChatColor.GREEN + "» Result in a disqualification Repeated offenders will be punished.");
+
+        rulesLore.add(ChatColor.RED + " " + ChatColor.STRIKETHROUGH + "-------------------------------------------------------------");
+
+        ItemStack spacer = new ItemCreator(Material.STAINED_GLASS_PANE).setName(" ").get();
+
+
+        ItemStack rule = new ItemCreator(Material.PAPER).setLore(rulesLore).setName(ChatColor.RED + "Rules").get();
+        rules.setItem(13, rule);
+
+        for (int i = 0; i < rules.getContents().length; i++) {
+            if (rules.getContents()[i] == null) {
+                rules.setItem(i, spacer);
+            }
+        }
+
+        return rules;
     }
 }

@@ -28,7 +28,8 @@ public class Joust extends JavaPlugin {
     @Getter private Tournament tournament;
     private final String API_KEY = "AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT";
 
-    private final String PREFIX = "&8[&3Tournament&8] &r";
+    private final String PREFIX = "&8[&3Tournament&8]&r";
+    private final String pvpPrefix = "&8[&4&lPvP&8]&8 »&r ";
 
     private KitManager kitManager;
     @Getter

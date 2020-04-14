@@ -98,8 +98,6 @@ public class TournamentAdmin implements CommandExecutor {
                     } catch (ExecutionException | InterruptedException e) {
                         e.printStackTrace();
                     }
-                    Utils.broadcast(joust.getPREFIX() + "&c&LThe tournament is now over view the bracket at");
-                    Utils.broadcast("&c&o" + joust.getTournament().getBracketURL());
                 }
             } else {
                 player.sendMessage(ChatColor.RED + "/tournament <host:setname:setdesc:setnum>");
