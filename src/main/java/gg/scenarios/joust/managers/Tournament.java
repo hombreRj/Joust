@@ -39,6 +39,7 @@ public class Tournament {
     private TournamentState tournamentState;
     private KitType kitType = KitType.BUILD;
     private Queue<Integer> matchQueue;
+    private boolean membersAdded = false;
 
     @Override
     public String toString() {
@@ -77,14 +78,13 @@ public class Tournament {
         TournamentPlayer.tournamentPlayerHashMap.keySet().forEach(s -> challonge.getParticipants().add(s));
         return challonge.addParticpants().get();
     }
-
-
+//START DOUBLE ROUDNS at -1
     private void startMatches() throws ExecutionException, InterruptedException, Exception {
         if (matchQueue.isEmpty()){
             end();
             return;
         }
-        Utils.broadcast(joust.getPREFIX() + "&c&lRound &a" + (round -1)+ " &c&l has started!");
+        Utils.broadcast(joust.getPREFIX() + "&c&lRound &a" + (round-1)+ " &c&l has started!");
         for (Arena arenas : Arena.arenasList) {
             if (arenas.isAvailable()) {
                 try {
@@ -106,6 +106,9 @@ public class Tournament {
 
 
     public void start() throws ExecutionException, InterruptedException {
+
+        if (!membersAdded) return;
+
         tournamentState = TournamentState.STARTED;
         challonge.start().get();
         challonge.indexMatches().get();
@@ -130,6 +133,7 @@ public class Tournament {
 
 
     public void randomize() throws ExecutionException, InterruptedException {
+        membersAdded = true;
         challonge.addParticpants().get();
         challonge.randomize().get();
     }

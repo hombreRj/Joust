@@ -18,16 +18,52 @@ public class KitManager {
     private Joust joust = Joust.getInstance();
 
     public void giveKit(Player p) {
-        if (joust.getTournament().getKitType().equals(KitType.BUILD)){
+        if (joust.getTournament().getKitType().equals(KitType.BUILD)) {
             buildKit(p);
-        }else if (joust.getTournament().getKitType().equals(KitType.UHC)){
+        } else if (joust.getTournament().getKitType().equals(KitType.UHC)) {
             uhcKit(p);
+        }else if(joust.getTournament().getKitType().equals(KitType.IRON)){
+            giveIronKit(p);
         }
 
 
     }
 
-    private void buildKit(Player p){
+    private void giveIronKit(Player p) {
+        PlayerInventory pinv = p.getInventory();
+
+        p.setHealth(20.0D);
+        p.setFireTicks(0);
+        p.setFoodLevel(20);
+        p.setSaturation(20.0F);
+        p.setGameMode(GameMode.SURVIVAL);
+        pinv.clear();
+
+        ItemStack helmet = new ItemStack(Material.IRON_HELMET);
+
+        ItemStack chest = new ItemStack(Material.IRON_CHESTPLATE);
+
+        ItemStack leg = new ItemStack(Material.IRON_LEGGINGS);
+
+        ItemStack boots = new ItemStack(Material.IRON_BOOTS);
+
+        ItemStack sword = new ItemStack(Material.IRON_SWORD);
+
+        ItemStack bow = new ItemStack(Material.BOW);
+
+
+        pinv.setHelmet(helmet);
+        pinv.setChestplate(chest);
+        pinv.setLeggings(leg);
+        pinv.setBoots(boots);
+        pinv.setItem(0, sword);
+        pinv.setItem(1, new ItemStack(Material.FISHING_ROD));
+        pinv.setItem(2, bow);
+        pinv.setItem(4, new ItemStack(Material.GOLDEN_APPLE, 2));
+        pinv.setItem(9, new ItemStack(Material.ARROW, 32));
+    }
+
+    private void buildKit(Player p) {
         PlayerInventory pinv = p.getInventory();
 
         p.setHealth(20.0D);
@@ -69,10 +105,10 @@ public class KitManager {
         pinv.setItem(0, sword);
         pinv.setItem(1, new ItemStack(Material.FISHING_ROD));
         pinv.setItem(2, bow);
-        //  pinv.setItem(3, new ItemStack(Material.LAVA_BUCKET));
-        //  pinv.setItem(30, new ItemStack(Material.LAVA_BUCKET));
-        //  pinv.setItem(4, new ItemStack(Material.WATER_BUCKET));
-        //   pinv.setItem(31, new ItemStack(Material.WATER_BUCKET));
+    //    pinv.setItem(3, new ItemStack(Material.LAVA_BUCKET));
+     //   pinv.setItem(30, new ItemStack(Material.LAVA_BUCKET));
+      //  pinv.setItem(4, new ItemStack(Material.WATER_BUCKET));
+     //   pinv.setItem(31, new ItemStack(Material.WATER_BUCKET));
         pinv.setItem(5, new ItemStack(Material.BAKED_POTATO, 64));
         pinv.setItem(6, new ItemStack(Material.GOLDEN_APPLE, 6));
         pinv.setItem(7, goldenHead);
@@ -82,7 +118,7 @@ public class KitManager {
     }
 
 
-    private void uhcKit(Player p){
+    private void uhcKit(Player p) {
         PlayerInventory pinv = p.getInventory();
 
         p.setHealth(20.0D);

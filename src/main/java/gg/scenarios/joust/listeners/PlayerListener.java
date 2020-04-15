@@ -12,7 +12,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,6 +51,14 @@ public class PlayerListener implements Listener {
         }
     }
 
+
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent ev) {
+        final Entity entity = ev.getEntity();
+        if (entity.getType() != EntityType.ARROW) return;
+        entity.remove();
+
+    }
 
     @EventHandler
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
@@ -101,7 +111,7 @@ public class PlayerListener implements Listener {
             return ChatColor.YELLOW + "" + Utils.getNf().format(health);
         } else if (health >= 5) {
             return ChatColor.RED + "" + Utils.getNf().format(health);
-        }else{
+        } else {
             return ChatColor.DARK_RED + "" + Utils.getNf().format(health);
         }
     }
@@ -313,7 +323,7 @@ public class PlayerListener implements Listener {
     public void onBucketEmpty(PlayerBucketEmptyEvent event) {
         if (event.getBucket() != Material.WATER_BUCKET || event.getBucket() != Material.LAVA_BUCKET) return;
         Player player = event.getPlayer();
-        Block water = event.getBlockClicked().getRelative(event.getBlockFace());
+        Block water = event.getBlockClicked();
         new BukkitRunnable() {
             @Override
             public void run() {

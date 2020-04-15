@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum KitType {
     BUILD("Build UHC"),
     UHC("UHC"),
+    IRON("Iron"),
     UHCPLUS("UHC +");
 
     @Getter

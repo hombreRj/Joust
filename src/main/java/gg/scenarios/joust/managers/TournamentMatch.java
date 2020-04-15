@@ -77,6 +77,10 @@ public class TournamentMatch {
         Bukkit.getScheduler().runTaskLater(joust, ()->{
             joust.getNms().removeVehicle(player1);
             joust.getNms().removeVehicle(player2);
+            try {
+                joust.getNms().removeArrows(player1);
+                joust.getNms().removeArrows(player2);
+            }catch (Exception ignored){ }
         }, 20*5);
     }
 
