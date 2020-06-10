@@ -50,7 +50,7 @@ public class Tournament {
                 '}';
     }
 
-    Challonge challonge = new Challonge(Joust.getInstance().getAPI_KEY(), "ScenariosUHC", "Scenarios" + System.currentTimeMillis(), "Scenarios 1v1 PvP tournament", "This tournament took place on na2.scenarios.gg", GameType.SINGLE);
+    Challonge challonge = new Challonge(Joust.getInstance().getAPI_KEY(), "ScenariosUHC", "Scenarios" + System.currentTimeMillis(), "Scenarios 1v1 PvP tournament", "This tournament took place on na2.scenarios.gg", type);
 
 
     public Tournament(String name, String tournamentNum, String description) {
