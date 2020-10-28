@@ -75,7 +75,7 @@ public class Challonge {
                     .header("accept", "application/json")
                     .field("api_key", api)
                     .field("tournament[name]", name)
-                    .field("tournament[url]", url)
+                    .field("tournament[subdomain]", "vizsla")
                     .field("tournament[tournament_type]", gameType.getName())
                     .field("tournament[description]", description)
                     .asJson();

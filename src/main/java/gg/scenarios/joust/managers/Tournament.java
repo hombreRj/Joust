@@ -23,6 +23,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -90,7 +92,8 @@ public class Tournament {
                 try {
                     startMatch(matchQueue.remove());
                 } catch (NullPointerException e) {
-                    System.out.println("Cannot start match - Too many arenas available");
+                    System.out.println("Cannot start match - Too many arenas available or Not enough available players");
+
                 } catch (NoSuchElementException e) {
                     for (Arena arena : Arena.arenasList) {
                         if (!arena.isAvailable()) {
@@ -98,7 +101,7 @@ public class Tournament {
                         }
                     }
                     System.out.println("Could");
-                    startNextRound();
+//                    startNextRound();
                 }
             }
         }
@@ -112,7 +115,9 @@ public class Tournament {
         tournamentState = TournamentState.STARTED;
         challonge.start().get();
         challonge.indexMatches().get();
+        List<Integer> matches = new ArrayList<>(challonge.getMatchIds().keySet());
 
+        matchQueue.addAll(matches);
 
         Inventory rules = tournamentRules();
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -121,7 +126,7 @@ public class Tournament {
 
         Bukkit.getScheduler().runTaskLater(joust, () -> {
             try {
-                startNextRound();
+                start();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -179,30 +184,32 @@ public class Tournament {
                     p.printStackTrace();
                 }
             } catch (NoSuchElementException e) {
-                System.out.println("Starting next round Line: " +206 + " startNextMatch");
-                startNextRound();
+                System.out.println("line 187, ending game");
+                end();
             }
         }
     }
+    int taskId;
 
     public void startMatch(int matchNumber) throws Exception {
         System.out.println("Start match: " + matchNumber);
         Integer[] names = null;
         try {
             names = challonge.getMatchParticipants(matchNumber).get();
-        }catch (NullPointerException e){
-            throw new NullPointerException("MatchParticipants are not found");
+        }catch (Exception e){
+            System.out.println("Trying again in 15 seconds");
+            ;
+            taskId = Bukkit.getScheduler().runTaskTimer(joust, () -> {
+                try {
+                    startMatch(matchNumber);
+                    Bukkit.getScheduler().cancelTask(taskId);
+                } catch (Exception ignored) {
+                }
+            }, 15*20L, 0).getTaskId();
+            throw new NullPointerException("");
         }
-        try {
-            TournamentPlayer p2 = TournamentPlayer.getTournamentPlayer(challonge.getNameFromId(names[0]));
-        } catch (NullPointerException e) {
-            forfeit(Bukkit.getPlayer(challonge.getNameFromId(names[1])), challonge.getNameFromId(names[0]));
-        }
-        try {
-            TournamentPlayer p1 = TournamentPlayer.getTournamentPlayer(challonge.getNameFromId(names[1]));
-        } catch (NullPointerException e) {
-            forfeit(Bukkit.getPlayer(challonge.getNameFromId(names[0])), challonge.getNameFromId(names[1]));
-        }
+
+        assert names != null;
         new TournamentMatch(matchNumber, challonge.getNameFromId(names[0]), challonge.getNameFromId(names[1]));
     }
 
@@ -252,26 +259,26 @@ public class Tournament {
     }
 
 
-    public void startNextRound() throws ExecutionException, InterruptedException, Exception {
-        List<Integer> matches = challonge.getMatchesFromRound(round);
-        if (matchQueue.isEmpty()) {
-            for (Arena arena : Arena.arenasList) {
-                if (!arena.isAvailable()) {
-                    throw new IllegalStateException("There is still a match going on");
-                }
-            }
-            try {
-                matchQueue.addAll(matches);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            System.out.println("starting new matches round: " + round);
-            round++;
-            startMatches();
-        } else {
-            throw new Exception("Cannot start next round as there are still matches in this round");
-        }
-    }
+//    public void startNextRound() throws ExecutionException, InterruptedException, Exception {
+//        List<Integer> matches = new ArrayList<>(challonge.getMatchIds().keySet());
+//        if (matchQueue.isEmpty()) {
+//            for (Arena arena : Arena.arenasList) {
+//                if (!arena.isAvailable()) {
+//                    throw new IllegalStateException("There is still a match going on");
+//                }
+//            }
+//            try {
+//                matchQueue.addAll(matches);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("starting new matches round: " + round);
+//            round++;
+//            startMatches();
+//        } else {
+//            throw new Exception("Cannot start next round as there are still matches in this round");
+//        }
+//    }
 
     private Inventory tournamentRules() {
         Inventory rules = Bukkit.createInventory(null, 27, ChatColor.GREEN + "Rules");
