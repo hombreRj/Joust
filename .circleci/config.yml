@@ -1,0 +1,22 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/rj
+    steps:
+      - checkout
+      - run: mvn -P ci clean package
+      - run: ls
+      - store_artifacts:
+          path: tournament/target/joust.jar
+          destination: artifacts
+      - add_ssh_keys:
+          fingerprints:
+            - "21:4e:57:ca:8d:1e:7c:20:9b:a8:4e:4c:48:85:84:84"
+      - deploy:
+          name: Deploy to servers
+          command: |
+            ssh -o BatchMode=yes -o StrictHostKeyChecking=no root@vizsla.cc "uptime"
+            scp tournament/target/UHC.jar root@158.69.121.66:/home/servers/natournament/plugins/joust.jar
+            echo "Finished uploading jars!"
