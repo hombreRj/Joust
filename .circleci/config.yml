@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8-jdk
-    working_directory: /home
+    working_directory: ~/rj
     steps:
       - checkout
       - run: mvn -P ci clean package
