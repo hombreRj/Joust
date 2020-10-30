@@ -11,9 +11,9 @@ jobs:
       - store_artifacts:
           path: NightShadeUHC/target/joust.jar
           destination: artifacts
-      - add_ssh_keys
-        fingerprints:
-          - "21:4e:57:ca:8d:1e:7c:20:9b:a8:4e:4c:48:85:84:84"
+      - add_ssh_keys:
+          fingerprints:
+            - "21:4e:57:ca:8d:1e:7c:20:9b:a8:4e:4c:48:85:84:84"
       - deploy:
           name: Deploy to servers
           command: |
