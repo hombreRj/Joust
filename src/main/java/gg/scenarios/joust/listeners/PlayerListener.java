@@ -174,7 +174,7 @@ public class PlayerListener implements Listener {
 
                 Bukkit.getScheduler().runTaskLater(joust, () -> {
                     try {
-                        joust.getTournament().startNextMatch();
+                        joust.getTournament().startMatches();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -268,6 +268,20 @@ public class PlayerListener implements Listener {
         event.getPlayer().getInventory().setChestplate(null);
         event.getPlayer().getInventory().addItem(specCompress);
 
+    }
+
+    @EventHandler
+    public void on(PlayerLoginEvent ev) {
+        Player e = ev.getPlayer();
+        if (joust.getTournament().isWhitelist()) {
+            if (joust.getTournament().getWhitelistSet().contains(e.getUniqueId()) || e.hasPermission("uhc.join") || e.isOp()) {
+                ev.allow();
+            } else {
+                ev.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, ChatColor.RED + "The whitelist is still enabled! \n Join our discord for coming matches \nhttps://discord.gg/cdG3Wjd");
+            }
+        }else{
+            ev.allow();
+        }
     }
 
     @EventHandler
@@ -372,7 +386,7 @@ public class PlayerListener implements Listener {
         player.getPlayer().sendMessage(ChatColor.RED + "Your opponent is not online so you have won");
         Bukkit.getScheduler().runTaskLater(joust, () -> {
             try {
-                joust.getTournament().startNextMatch();
+                joust.getTournament().startMatches();
             } catch (Exception e) {
                 e.printStackTrace();
             }

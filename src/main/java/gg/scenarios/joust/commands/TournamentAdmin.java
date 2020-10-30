@@ -54,7 +54,7 @@ public class TournamentAdmin implements CommandExecutor {
                             return false;
                         }
                         if (joust.getTournament().getTournamentNum() == null) {
-                            player.sendMessage(ChatColor.RED + "Tournament name is not set");
+                            player.sendMessage(ChatColor.RED + "Tournament num is not set");
                             return false;
                         }
 

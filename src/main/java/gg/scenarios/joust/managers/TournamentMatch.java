@@ -112,7 +112,7 @@ public class TournamentMatch {
         player.getPlayer().sendMessage(ChatColor.RED + "Your opponent is not online so you have won");
         Bukkit.getScheduler().runTaskLater(joust, () -> {
             try {
-                joust.getTournament().startNextMatch();
+                joust.getTournament().startMatches();
             } catch (Exception e) {
                 e.printStackTrace();
             }

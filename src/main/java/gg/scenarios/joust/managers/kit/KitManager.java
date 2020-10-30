@@ -47,7 +47,7 @@ public class KitManager {
 
         ItemStack boots = new ItemStack(Material.IRON_BOOTS);
 
-        ItemStack sword = new ItemStack(Material.IRON_SWORD);
+        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
 
         ItemStack bow = new ItemStack(Material.BOW);
 

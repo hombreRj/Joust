@@ -3,6 +3,7 @@ package gg.scenarios.joust;
 import gg.scenarios.joust.commands.BracketCommand;
 import gg.scenarios.joust.commands.RulesCommand;
 import gg.scenarios.joust.commands.TournamentAdmin;
+import gg.scenarios.joust.commands.WhitelistCommand;
 import gg.scenarios.joust.listeners.PlayerListener;
 import gg.scenarios.joust.managers.arena.ArenaManager;
 import gg.scenarios.joust.managers.Tournament;
@@ -26,7 +27,7 @@ public class Joust extends JavaPlugin {
     public static List<UUID> mods = new ArrayList<>();
     private ArenaManager arenaManager;
     @Getter private Tournament tournament;
-    private final String API_KEY = "AeoqInZkvafvAeTuiHNat7aADcJdLdxOjmiNVLPT";
+    private final String API_KEY = "gGw4BJ2lSNMtbrUlSgz423EMULM05o2sIdZWu0Mn";
 
     private final String PREFIX = "&8[&3Tournament&8]&r ";
     private final String pvpPrefix = "&8[&4&lPvP&8]&8 »&r ";
@@ -49,7 +50,7 @@ public class Joust extends JavaPlugin {
         getCommand("tournament").setExecutor(new TournamentAdmin());
         getCommand("bracket").setExecutor(new BracketCommand());
         getCommand("rules").setExecutor(new RulesCommand());
-
+        getCommand("whitelist").setExecutor(new WhitelistCommand());
         System.out.println(tournament);
     }
 

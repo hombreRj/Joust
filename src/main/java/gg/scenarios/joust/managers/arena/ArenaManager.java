@@ -42,6 +42,15 @@ public class ArenaManager {
        return Arena.arenasList.stream().filter(Arena::isAvailable).findFirst().orElseThrow(Exception::new);
     }
 
+    public boolean allAvailable(){
+        for (Arena arena : Arena.arenasList) {
+            if (!arena.isAvailable()){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public Arena getArenaByName(String name) throws Exception {
         return Arena.arenasList.stream().filter(arena -> arena.getName().equalsIgnoreCase(name)).findFirst().orElseThrow(Exception::new);
     }
